@@ -4,13 +4,15 @@
 ![Flask](https://img.shields.io/badge/Flask-3.x-black)
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-success)
 
-Secure multi-media steganography web application built with Flask.
+Web-based multi-media steganography application built with Flask.
 
 This project hides secret text inside text, audio, video, and images with optional password-based AES-GCM encryption.
 
 ## Table of Contents
 
 - [Overview](#overview)
+- [Web-Based First](#web-based-first)
+- [Steganography Coverage (All Modes)](#steganography-coverage-all-modes)
 - [Demo and Media](#demo-and-media)
 - [Core Capabilities](#core-capabilities)
 - [End-to-End Workflow](#end-to-end-workflow)
@@ -42,6 +44,26 @@ The application provides an end-to-end interface for steganography:
 
 The active runtime flow uses deterministic steganography pipelines in the `bis/stego` package.
 
+## Web-Based First
+
+This repository is primarily a web project, not a CLI-only tool.
+
+- Primary interface is browser-based (`/encrypt`, `/decrypt`, `/about`)
+- Frontend pages call Flask APIs for all steganography operations
+- File upload/download workflows are handled through web forms and endpoints
+- Any CLI entry points are optional utilities for advanced modules, not the main product flow
+
+## Steganography Coverage (All Modes)
+
+Project scope covers all four steganography modes, not image-only processing.
+
+| Mode | Cover Media | Core Method | Encrypt Endpoint | Decrypt Endpoint |
+|---|---|---|---|---|
+| Text in Text | Plain text | Zero-width Unicode embedding | `/api/encrypt-text` | `/api/decrypt-text` |
+| Text in Audio | WAV audio | LSB embedding on audio samples | `/api/encrypt-audio` | `/api/decrypt-audio` |
+| Text in Video | Video frames | LSB embedding across frames | `/api/encrypt-video` | `/api/decrypt-video` |
+| Text in Image | PNG/JPG image | LSB embedding on pixels | `/api/encrypt-image` | `/api/decrypt-image` |
+
 ## Demo and Media
 
 Project output preview:
@@ -54,6 +76,7 @@ Full output video:
 
 ## Core Capabilities
 
+- Web-first workflow through browser pages and REST endpoints
 - Text in Text via zero-width Unicode embedding
 - Text in Audio via WAV least-significant-bit embedding
 - Text in Video via frame-based embedding
@@ -290,7 +313,7 @@ Fine-tuning routes are conditionally registered when module dependencies are ava
 
 - Runtime artifacts are excluded by `.gitignore`.
 - Legacy generation runtime paths and old unused generation modules were removed from active app flow.
-- Current CLI entry point in packaging is `bis.fine_tuning.cli:main`.
+- Web application flow is the primary product path; optional CLI utilities are secondary and module-specific.
 
 ## Contributing
 
