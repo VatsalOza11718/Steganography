@@ -1,68 +1,48 @@
-# Steganography (BIS Stagno)
+# BIS Stagno
 
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
 ![Flask](https://img.shields.io/badge/Flask-3.x-black)
-![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-success)
+![Web App](https://img.shields.io/badge/Type-Web%20Application-success)
+![Steganography](https://img.shields.io/badge/Modes-Text%20%7C%20Audio%20%7C%20Video%20%7C%20Image-purple)
 
-Web-based multi-media steganography application built with Flask.
+Professional, web-based multi-modal steganography platform built with Flask.
 
-This project hides secret text inside text, audio, video, and images with optional password-based AES-GCM encryption.
+This project is focused on browser-first encryption and decryption workflows (not CLI-first), and it supports all major steganography modes: text, audio, video, and image.
 
 ## Table of Contents
 
-- [Overview](#overview)
-- [Web-Based First](#web-based-first)
-- [Steganography Coverage (All Modes)](#steganography-coverage-all-modes)
+- [Executive Summary](#executive-summary)
 - [Demo and Media](#demo-and-media)
-- [Core Capabilities](#core-capabilities)
-- [End-to-End Workflow](#end-to-end-workflow)
-- [Architecture](#architecture)
+- [Web-First Positioning](#web-first-positioning)
+- [Steganography Coverage](#steganography-coverage)
+- [System Diagrams](#system-diagrams)
+- [Architecture and Components](#architecture-and-components)
 - [Template Gallery](#template-gallery)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [Requirements](#requirements)
-- [Quick Start](#quick-start)
-- [Run the App](#run-the-app)
+- [Technology Stack](#technology-stack)
+- [Repository Structure](#repository-structure)
+- [Getting Started](#getting-started)
+- [Run the Web Application](#run-the-web-application)
 - [API Reference](#api-reference)
-- [API Examples](#api-examples)
+- [API Usage Examples](#api-usage-examples)
 - [Quality Checkpoints](#quality-checkpoints)
-- [Security Notes](#security-notes)
+- [Security Considerations](#security-considerations)
 - [Fine-Tuning Module (Optional)](#fine-tuning-module-optional)
 - [Troubleshooting](#troubleshooting)
 - [Repository Notes](#repository-notes)
 - [Contributing](#contributing)
 - [License](#license)
 
-## Overview
+## Executive Summary
 
-The application provides an end-to-end interface for steganography:
+BIS Stagno provides a complete web interface for secure steganography operations:
 
-- Encrypt secret content into cover media
-- Decrypt and recover hidden content
-- Use built-in templates for fast testing
-- Optionally encrypt hidden payloads with AES-GCM
+- Hide secret messages inside text, audio, video, and image cover media
+- Recover hidden messages through dedicated decrypt workflows
+- Optionally protect payloads with AES-GCM encryption
+- Use template-based covers for fast, reproducible testing
+- Serve outputs as downloadable media files through web endpoints
 
-The active runtime flow uses deterministic steganography pipelines in the `bis/stego` package.
-
-## Web-Based First
-
-This repository is primarily a web project, not a CLI-only tool.
-
-- Primary interface is browser-based (`/encrypt`, `/decrypt`, `/about`)
-- Frontend pages call Flask APIs for all steganography operations
-- File upload/download workflows are handled through web forms and endpoints
-- Any CLI entry points are optional utilities for advanced modules, not the main product flow
-
-## Steganography Coverage (All Modes)
-
-Project scope covers all four steganography modes, not image-only processing.
-
-| Mode | Cover Media | Core Method | Encrypt Endpoint | Decrypt Endpoint |
-|---|---|---|---|---|
-| Text in Text | Plain text | Zero-width Unicode embedding | `/api/encrypt-text` | `/api/decrypt-text` |
-| Text in Audio | WAV audio | LSB embedding on audio samples | `/api/encrypt-audio` | `/api/decrypt-audio` |
-| Text in Video | Video frames | LSB embedding across frames | `/api/encrypt-video` | `/api/decrypt-video` |
-| Text in Image | PNG/JPG image | LSB embedding on pixels | `/api/encrypt-image` | `/api/decrypt-image` |
+The active runtime flow uses deterministic steganography implementations in `bis/stego`.
 
 ## Demo and Media
 
@@ -70,71 +50,138 @@ Project output preview:
 
 ![Project Output Preview](docs/images/video-preview.png)
 
-Full output video:
+Demo video:
 
 - [Watch Video.mp4](Video.mp4)
 
-## Core Capabilities
+## Web-First Positioning
 
-- Web-first workflow through browser pages and REST endpoints
-- Text in Text via zero-width Unicode embedding
-- Text in Audio via WAV least-significant-bit embedding
-- Text in Video via frame-based embedding
-- Text in Image via LSB embedding
-- Template-generated covers for text, audio, video, and images
-- Optional password-based AES-GCM encryption
-- Optional fine-tuning dashboard and API routes
+This repository is designed as a web application first.
 
-## End-to-End Workflow
+- Primary usage is through browser pages (`/`, `/encrypt`, `/decrypt`, `/about`)
+- Frontend pages invoke backend APIs for all processing operations
+- Upload and download flows are handled via web forms and HTTP endpoints
+- Optional CLI entry points are secondary utilities for advanced modules
 
-1. User enters secret text and optional password.
-2. User chooses a steganography mode.
-3. User selects a template or uploads custom media.
-4. Flask route calls the corresponding `bis/stego` module.
-5. Output is generated and served as downloadable media.
-6. Decrypt flow recovers and optionally decrypts payload.
+## Steganography Coverage
 
-## Architecture
+The project is not image-only. It supports all core steganography modes.
+
+| Mode | Cover Type | Method | Encrypt | Decrypt |
+|---|---|---|---|---|
+| Text in Text | Plain text | Zero-width Unicode embedding | `/api/encrypt-text` | `/api/decrypt-text` |
+| Text in Audio | WAV audio | LSB over audio samples | `/api/encrypt-audio` | `/api/decrypt-audio` |
+| Text in Video | Video frames | Frame-level LSB embedding | `/api/encrypt-video` | `/api/decrypt-video` |
+| Text in Image | PNG/JPG image | Pixel-level LSB embedding | `/api/encrypt-image` | `/api/decrypt-image` |
+
+## System Diagrams
+
+### 1. High-Level Web Architecture
 
 ```mermaid
 flowchart LR
-		A[Frontend UI<br/>templates + static JS] --> B[Flask App<br/>flask_app.py]
-		B --> C[Text Stego<br/>bis/stego/text_stego.py]
-		B --> D[Audio Stego<br/>bis/stego/audio.py]
-		B --> E[Video Stego<br/>bis/stego/video.py]
-		B --> F[Image Stego<br/>bis/stego/image_lsb.py]
-		B --> G[Template Endpoints]
-		B --> H[(uploads/)]
-		C --> I[(outputs/)]
-		D --> I
-		E --> I
-		F --> I
-		B --> J[Download Endpoints]
+		U[User Browser] --> W[Web UI<br/>templates + static JS]
+		W --> A[Flask Application<br/>flask_app.py]
+		A --> T[Text Engine<br/>bis/stego/text_stego.py]
+		A --> AU[Audio Engine<br/>bis/stego/audio.py]
+		A --> V[Video Engine<br/>bis/stego/video.py]
+		A --> I[Image Engine<br/>bis/stego/image_lsb.py]
+		A --> C[Crypto Helpers<br/>bis/utils/crypto.py]
+		A --> UP[(uploads/)]
+		T --> OUT[(outputs/)]
+		AU --> OUT
+		V --> OUT
+		I --> OUT
+		A --> D[Download Endpoints]
 ```
+
+### 2. Encrypt Request Sequence
+
+```mermaid
+sequenceDiagram
+		participant User
+		participant UI as Browser UI
+		participant API as Flask API
+		participant Engine as Stego Engine
+		participant Store as outputs/
+
+		User->>UI: Enter secret + select mode + cover
+		UI->>API: POST /api/encrypt-*
+		API->>Engine: Validate + embed payload
+		Engine-->>API: Stego media + metadata
+		API->>Store: Save output file
+		API-->>UI: URL + metrics + status
+		UI-->>User: Show preview and download link
+```
+
+### 3. Decrypt Request Sequence
+
+```mermaid
+sequenceDiagram
+		participant User
+		participant UI as Browser UI
+		participant API as Flask API
+		participant Engine as Stego Engine
+
+		User->>UI: Upload stego media + optional password
+		UI->>API: POST /api/decrypt-*
+		API->>Engine: Extract hidden payload
+		Engine-->>API: Recovered text
+		API-->>UI: Extracted message + status
+		UI-->>User: Render recovered secret
+```
+
+### 4. Mode Routing Map
+
+```mermaid
+flowchart TD
+		M[Selected Mode] --> MT[Text]
+		M --> MA[Audio]
+		M --> MV[Video]
+		M --> MI[Image]
+		MT --> ET[/api/encrypt-text/]
+		MT --> DT[/api/decrypt-text/]
+		MA --> EA[/api/encrypt-audio/]
+		MA --> DA[/api/decrypt-audio/]
+		MV --> EV[/api/encrypt-video/]
+		MV --> DV[/api/decrypt-video/]
+		MI --> EI[/api/encrypt-image/]
+		MI --> DI[/api/decrypt-image/]
+```
+
+## Architecture and Components
+
+| Layer | Main Files | Responsibility |
+|---|---|---|
+| Web UI | `templates/*`, `static/*` | User interactions, forms, client logic |
+| Web API | `flask_app.py` | Routing, validation, orchestration |
+| Stego Core | `bis/stego/*` | Embedding and extraction implementations |
+| Utilities | `bis/utils/*` | Crypto, metrics, helper functions |
+| Optional Training | `bis/fine_tuning/*` | Fine-tuning APIs and dashboard |
 
 ## Template Gallery
 
-Template previews used by the app:
+Template previews used in the web app:
 
 <p align="center">
-	<img src="static/templates/images/nature.png" alt="Nature Template" width="32%" />
-	<img src="static/templates/images/ocean.png" alt="Ocean Template" width="32%" />
-	<img src="static/templates/images/citynight.png" alt="City Night Template" width="32%" />
+	<img src="static/templates/images/nature.png" alt="Nature template" width="32%" />
+	<img src="static/templates/images/ocean.png" alt="Ocean template" width="32%" />
+	<img src="static/templates/images/citynight.png" alt="City Night template" width="32%" />
 </p>
 <p align="center">
-	<img src="static/templates/images/forest.png" alt="Forest Template" width="32%" />
-	<img src="static/templates/images/sunset.png" alt="Sunset Template" width="32%" />
-	<img src="static/templates/images/abstract.png" alt="Abstract Template" width="32%" />
+	<img src="static/templates/images/forest.png" alt="Forest template" width="32%" />
+	<img src="static/templates/images/sunset.png" alt="Sunset template" width="32%" />
+	<img src="static/templates/images/abstract.png" alt="Abstract template" width="32%" />
 </p>
 
-## Tech Stack
+## Technology Stack
 
 - Backend: Flask, NumPy, OpenCV
 - Security: PyCryptodome (AES-GCM)
 - Frontend: HTML, CSS, JavaScript
-- Media: WAV and video processing, optional ffmpeg for muxing
+- Media: WAV and video processing, optional ffmpeg muxing support
 
-## Project Structure
+## Repository Structure
 
 ```text
 Stagno/
@@ -150,78 +197,71 @@ Stagno/
 │   ├── utils/
 │   ├── fine_tuning/
 │   └── generation/image_gen/
-├── static/
 ├── templates/
-├── uploads/        (runtime, git ignored)
-├── outputs/        (runtime, git ignored)
-└── docs/images/
+├── static/
+├── uploads/          (runtime, git ignored)
+├── outputs/          (runtime, git ignored)
+├── docs/images/
+└── Video.mp4
 ```
 
-## Requirements
+## Getting Started
+
+### Prerequisites
 
 - Python 3.10+
 - pip
-- Optional: ffmpeg (recommended for richer video/audio workflows)
-- Optional: Node.js (for frontend syntax checks)
+- Optional: ffmpeg (recommended for full video/audio workflows)
+- Optional: Node.js (used for frontend syntax checks)
 
-## Quick Start
-
-1. Clone repository.
+### Setup
 
 ```powershell
 git clone https://github.com/VatsalOza11718/Steganography.git
 cd Steganography
-```
 
-2. Create and activate a virtual environment.
-
-```powershell
 python -m venv .venv
 .venv\Scripts\Activate.ps1
-```
 
-3. Install dependencies.
-
-```powershell
 pip install -e .
 ```
 
-## Run the App
+## Run the Web Application
 
 ```powershell
 python flask_app.py
 ```
 
-Open in browser:
+Open:
 
 - http://127.0.0.1:5000
 
 ## API Reference
 
-| Method | Endpoint | Content-Type | Purpose |
+| Method | Endpoint | Content-Type | Description |
 |---|---|---|---|
 | GET | `/` | text/html | Home page |
-| GET | `/encrypt` | text/html | Encrypt UI |
-| GET | `/decrypt` | text/html | Decrypt UI |
-| GET | `/about` | text/html | About page |
-| POST | `/api/encrypt-text` | application/json | Hide secret in cover text |
-| POST | `/api/decrypt-text` | application/json | Extract secret from stego text |
-| POST | `/api/encrypt-audio` | multipart/form-data | Hide secret in WAV audio |
-| POST | `/api/decrypt-audio` | multipart/form-data | Extract secret from stego audio |
-| POST | `/api/encrypt-video` | multipart/form-data | Hide secret in video |
-| POST | `/api/decrypt-video` | multipart/form-data | Extract secret from stego video |
-| POST | `/api/encrypt-image` | multipart/form-data | Hide secret in image |
-| POST | `/api/decrypt-image` | multipart/form-data | Extract secret from image |
+| GET | `/encrypt` | text/html | Encrypt web page |
+| GET | `/decrypt` | text/html | Decrypt web page |
+| GET | `/about` | text/html | About web page |
+| POST | `/api/encrypt-text` | application/json | Encrypt payload into text cover |
+| POST | `/api/decrypt-text` | application/json | Decrypt payload from text cover |
+| POST | `/api/encrypt-audio` | multipart/form-data | Encrypt payload into WAV cover |
+| POST | `/api/decrypt-audio` | multipart/form-data | Decrypt payload from WAV stego |
+| POST | `/api/encrypt-video` | multipart/form-data | Encrypt payload into video cover |
+| POST | `/api/decrypt-video` | multipart/form-data | Decrypt payload from video stego |
+| POST | `/api/encrypt-image` | multipart/form-data | Encrypt payload into image cover |
+| POST | `/api/decrypt-image` | multipart/form-data | Decrypt payload from image stego |
 | GET | `/api/templates/text/<template_id>` | application/json | Fetch text template |
-| GET | `/api/templates/audio/<template_id>` | audio/wav | Generate audio template |
-| GET | `/api/templates/video/<template_id>` | video/x-msvideo | Generate video template |
+| GET | `/api/templates/audio/<template_id>` | audio/wav | Generate/fetch audio template |
+| GET | `/api/templates/video/<template_id>` | video/x-msvideo | Generate/fetch video template |
 | GET | `/api/templates/image/<template_id>` | image/png | Fetch image template |
-| GET | `/output/<filename>` | mixed | Serve output file |
-| GET | `/api/download/<filename>` | mixed | Download output file |
+| GET | `/output/<filename>` | mixed | Serve output artifact |
+| GET | `/api/download/<filename>` | mixed | Download output artifact |
 
-## API Examples
+## API Usage Examples
 
-Encrypt text:
+### Encrypt text
 
 ```bash
 curl -X POST http://127.0.0.1:5000/api/encrypt-text \
@@ -229,7 +269,7 @@ curl -X POST http://127.0.0.1:5000/api/encrypt-text \
 	-d '{"cover_text":"Normal message","secret_text":"Hidden text","password":"optional-pass"}'
 ```
 
-Decrypt text:
+### Decrypt text
 
 ```bash
 curl -X POST http://127.0.0.1:5000/api/decrypt-text \
@@ -237,7 +277,7 @@ curl -X POST http://127.0.0.1:5000/api/decrypt-text \
 	-d '{"stego_text":"...","password":"optional-pass"}'
 ```
 
-Encrypt audio:
+### Encrypt audio
 
 ```bash
 curl -X POST http://127.0.0.1:5000/api/encrypt-audio \
@@ -246,7 +286,7 @@ curl -X POST http://127.0.0.1:5000/api/encrypt-audio \
 	-F "audio=@cover.wav"
 ```
 
-Encrypt video:
+### Encrypt video
 
 ```bash
 curl -X POST http://127.0.0.1:5000/api/encrypt-video \
@@ -255,7 +295,7 @@ curl -X POST http://127.0.0.1:5000/api/encrypt-video \
 	-F "video=@cover.mp4"
 ```
 
-Encrypt image:
+### Encrypt image
 
 ```bash
 curl -X POST http://127.0.0.1:5000/api/encrypt-image \
@@ -266,7 +306,7 @@ curl -X POST http://127.0.0.1:5000/api/encrypt-image \
 
 ## Quality Checkpoints
 
-Run these commands before release or push:
+Run before release/push:
 
 ```powershell
 python -m py_compile flask_app.py
@@ -285,16 +325,16 @@ Smoke test:
 python -c "from flask_app import app; c=app.test_client(); assert c.get('/').status_code==200; assert c.get('/encrypt').status_code==200; assert c.get('/decrypt').status_code==200; assert c.get('/about').status_code==200; print('smoke-ok')"
 ```
 
-## Security Notes
+## Security Considerations
 
-- Steganography conceals data existence, but encryption protects data confidentiality.
-- Use strong passwords for sensitive payloads.
-- Do not assume stego files are tamper-proof after heavy recompression.
-- Treat outputs as sensitive artifacts and share only when required.
+- Steganography hides the existence of data; encryption protects data confidentiality.
+- Use strong passwords when AES-GCM is enabled.
+- Treat generated outputs as sensitive artifacts.
+- Recompression and heavy post-processing can reduce extraction reliability.
 
 ## Fine-Tuning Module (Optional)
 
-Fine-tuning routes are conditionally registered when module dependencies are available.
+Fine-tuning routes are conditionally registered when dependencies are available.
 
 - `POST /api/fine-tune/<modality>`
 - `GET /api/fine-tune/status/<job_id>`
@@ -302,26 +342,26 @@ Fine-tuning routes are conditionally registered when module dependencies are ava
 
 ## Troubleshooting
 
-| Problem | Likely Cause | Fix |
+| Problem | Likely Cause | Resolution |
 |---|---|---|
-| `ffmpeg` not found | Not installed or not on PATH | Install ffmpeg or add to PATH |
-| Cannot decode output | Wrong password or modified media | Retry with original file and correct password |
-| Slow video processing | Large video files or high resolution | Start with shorter/lower-resolution media |
-| Import/module errors | Incomplete environment setup | Recreate venv and reinstall dependencies |
+| `ffmpeg` not found | Not installed or not on PATH | Install ffmpeg and add it to PATH |
+| Cannot decode output | Wrong password or modified media | Use original output media and correct password |
+| Slow processing on large media | High resolution/long duration input | Start with smaller input files |
+| Module import errors | Incomplete environment | Recreate virtual environment and reinstall deps |
 
 ## Repository Notes
 
-- Runtime artifacts are excluded by `.gitignore`.
-- Legacy generation runtime paths and old unused generation modules were removed from active app flow.
-- Web application flow is the primary product path; optional CLI utilities are secondary and module-specific.
+- Runtime artifacts are excluded via `.gitignore`.
+- Legacy generation runtime paths and unused modules were removed from active flow.
+- Web application flow is primary; optional CLI utilities are secondary.
 
 ## Contributing
 
 1. Create a feature branch.
-2. Implement and test changes.
-3. Run all checkpoints listed above.
-4. Open a pull request with a concise description.
+2. Implement and test your changes.
+3. Run the quality checkpoints.
+4. Open a pull request with a clear summary.
 
 ## License
 
-License file is not included yet. Add a `LICENSE` file before public reuse distribution.
+A `LICENSE` file is not added yet. Add one before public reuse distribution.
