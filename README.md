@@ -1,13 +1,15 @@
+<p align="center">
+	<img src="https://capsule-render.vercel.app/api?type=waving&height=240&color=0:0B132B,50:1C2541,100:3A506B&text=BIS%20Stagno&fontColor=EAF2FF&fontSize=56&fontAlignY=38&desc=Web-First%20Steganography%20Platform&descAlignY=60&animation=fadeIn" alt="BIS Stagno banner" />
+</p>
+
 <div align="center">
 
-<h1>BIS Stagno</h1>
+### Secure Multi-Modal Steganography for the Web
 
-<p><strong>Professional Web-Based Multi-Modal Steganography Platform</strong></p>
-
-<p>Browser-first encryption and decryption workflows across text, audio, video, and image channels.</p>
+Browser-first encryption and decryption workflows for text, audio, video, and image channels, powered by Flask.
 
 <p>
-	<a href="#visual-showcase"><strong>Visuals</strong></a>
+	<a href="#visual-showcase"><strong>Visual Showcase</strong></a>
 	·
 	<a href="#architecture-snapshot"><strong>Architecture</strong></a>
 	·
@@ -18,15 +20,32 @@
 	<a href="#api-reference"><strong>API Reference</strong></a>
 	·
 	<a href="#system-diagrams"><strong>System Diagrams</strong></a>
-	·
-	<a href="Video.mp4"><strong>Demo Video</strong></a>
+</p>
+
+<p>
+	<a href="https://raw.githubusercontent.com/VatsalOza11718/Steganography/main/Video.mp4">
+		<img src="https://img.shields.io/badge/Watch%20Demo-Video.mp4-0A66C2?style=for-the-badge&logo=github&logoColor=white" alt="Watch demo video" />
+	</a>
+	<a href="#run-the-web-application">
+		<img src="https://img.shields.io/badge/Open-Web%20App%20Guide-2EA44F?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Run web app" />
+	</a>
+	<a href="#api-reference">
+		<img src="https://img.shields.io/badge/API-Reference-6F42C1?style=for-the-badge&logo=swagger&logoColor=white" alt="API reference" />
+	</a>
+</p>
+
+<p>
+	<img src="https://img.shields.io/github/stars/VatsalOza11718/Steganography?style=flat-square" alt="GitHub stars" />
+	<img src="https://img.shields.io/github/forks/VatsalOza11718/Steganography?style=flat-square" alt="GitHub forks" />
+	<img src="https://img.shields.io/github/issues/VatsalOza11718/Steganography?style=flat-square" alt="GitHub issues" />
+	<img src="https://img.shields.io/github/last-commit/VatsalOza11718/Steganography?style=flat-square" alt="Last commit" />
 </p>
 
 <p>
 	<img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white" alt="Python" />
 	<img src="https://img.shields.io/badge/Flask-3.x-000000?logo=flask&logoColor=white" alt="Flask" />
 	<img src="https://img.shields.io/badge/Architecture-Web--First-2EA44F" alt="Architecture" />
-	<img src="https://img.shields.io/badge/Modes-Text%20%7C%20Audio%20%7C%20Video%20%7C%20Image-1F6FEB" alt="Steganography Modes" />
+	<img src="https://img.shields.io/badge/Modes-Text%20%7C%20Audio%20%7C%20Video%20%7C%20Image-1F6FEB" alt="Steganography modes" />
 	<img src="https://img.shields.io/badge/Security-AES--GCM-C27C0E" alt="Security" />
 	<img src="https://img.shields.io/badge/Status-Active%20Development-6E7781" alt="Status" />
 </p>
@@ -35,36 +54,50 @@
 
 ## Visual Showcase
 
+<table align="center" width="100%">
+	<tr>
+		<td width="70%" valign="top">
+			<a href="https://raw.githubusercontent.com/VatsalOza11718/Steganography/main/Video.mp4">
+				<img src="docs/images/demo.gif" alt="BIS Stagno animated web demo preview" width="100%" />
+			</a>
+			<br />
+			<em>Animated preview shown as GIF for GitHub compatibility. Click to open full MP4.</em>
+		</td>
+		<td width="30%" valign="top">
+			<img src="static/templates/images/nature.png" alt="Nature template" width="100%" />
+			<br /><br />
+			<img src="static/templates/images/citynight.png" alt="City Night template" width="100%" />
+			<br /><br />
+			<img src="static/templates/images/abstract.png" alt="Abstract template" width="100%" />
+		</td>
+	</tr>
+</table>
+
 <p align="center">
-	<a href="Video.mp4">
-		<img src="docs/images/video-preview.png" alt="BIS Stagno web demo preview" width="90%" />
-	</a>
+	<a href="https://raw.githubusercontent.com/VatsalOza11718/Steganography/main/Video.mp4"><strong>Watch Full Demo Video (Browser Stream)</strong></a>
+	·
+	<a href="Video.mp4"><strong>Open Repository Video File</strong></a>
 </p>
+
 <p align="center">
-	<video src="Video.mp4" controls width="90%" poster="docs/images/video-preview.png"></video>
-</p>
-<p align="center">
-	<a href="Video.mp4"><strong>Play Full Demo Video (Video.mp4)</strong></a>
-</p>
-<p align="center">
-	<em>If inline video is not available in your viewer, open the demo link above.</em>
+	<em>GitHub does not reliably auto-play repository MP4 files inline in README. This GIF + raw MP4 link pattern is the most consistent viewing experience.</em>
 </p>
 
 ## Architecture Snapshot
 
 ```mermaid
-flowchart LR
-		U[User Browser UI] --> W[Web Pages<br/>Encrypt and Decrypt]
-		W --> A[Flask API Layer<br/>flask_app.py]
-		A --> T[Text Stego]
-		A --> AU[Audio Stego]
-		A --> V[Video Stego]
-		A --> I[Image Stego]
-		A --> C[Crypto Helpers<br/>AES-GCM]
-		T --> O[(outputs/)]
-		AU --> O
-		V --> O
-		I --> O
+flowchart TB
+		U[Browser Client] --> UI[Web Interface<br/>Encrypt and Decrypt Pages]
+		UI --> API[Flask API Orchestrator<br/>flask_app.py]
+		API --> TXT[Text Stego Engine]
+		API --> AUD[Audio Stego Engine]
+		API --> VID[Video Stego Engine]
+		API --> IMG[Image Stego Engine]
+		API --> CRYPTO[AES-GCM Helpers]
+		TXT --> OUT[(outputs/)]
+		AUD --> OUT
+		VID --> OUT
+		IMG --> OUT
 ```
 
 ## Table of Contents
@@ -110,9 +143,14 @@ Project output preview:
 
 ![Project Output Preview](docs/images/video-preview.png)
 
+Animated web walkthrough preview:
+
+![Animated Demo Preview](docs/images/demo.gif)
+
 Demo video:
 
-- [Watch Video.mp4](Video.mp4)
+- [Watch Full Demo (raw MP4 stream)](https://raw.githubusercontent.com/VatsalOza11718/Steganography/main/Video.mp4)
+- [Open repository video file](Video.mp4)
 
 ## Web-First Positioning
 
