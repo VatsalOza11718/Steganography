@@ -1,0 +1,1311 @@
+/* ═══════════════════════════════════════════════════════════════
+   BIS Animation System — 54 Animations · 60fps · GPU-Accelerated
+   Comprehensive site-wide interactive experience
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════════════════════════
+   1. LOADING SCREEN (Animations 1-5)
+   ═══════════════════════════════════════════════════════════════ */
+.page-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg, #06080f);
+    transition: opacity .6s cubic-bezier(.4, 0, .2, 1), transform .6s cubic-bezier(.4, 0, .2, 1);
+    will-change: opacity, transform;
+}
+
+.page-loader.loader-exit {
+    opacity: 0;
+    transform: translateY(-100%);
+    pointer-events: none;
+}
+
+.page-loader.loader-done {
+    display: none
+}
+
+.loader-inner {
+    text-align: center;
+    transform: translateY(10px);
+    animation: loaderFadeIn .8s ease forwards;
+}
+
+@keyframes loaderFadeIn {
+    to {
+        transform: translateY(0);
+        opacity: 1
+    }
+}
+
+/* Anim 1: Logo SVG path draw */
+.loader-logo svg {
+    width: 72px;
+    height: 72px;
+    margin-bottom: 24px;
+    filter: drop-shadow(0 0 20px rgba(99, 102, 241, .4))
+}
+
+.loader-logo .logo-body {
+    stroke: url(#loader-grad);
+    stroke-width: 1.5;
+    fill: none;
+    stroke-dasharray: 100;
+    stroke-dashoffset: 100;
+    animation: logoPathDraw 1.2s ease forwards;
+}
+
+.loader-logo .logo-shackle {
+    stroke-dasharray: 60;
+    stroke-dashoffset: 60;
+    animation: logoPathDraw 1s .3s ease forwards;
+}
+
+@keyframes logoPathDraw {
+    to {
+        stroke-dashoffset: 0
+    }
+}
+
+/* Anim 2: Logo unlock — shackle lifts */
+.loader-logo .logo-shackle {
+    animation: logoPathDraw 1s .3s ease forwards, shackleLift .5s 1.5s ease forwards;
+}
+
+@keyframes shackleLift {
+    to {
+        transform: translateY(-4px) rotate(-8deg);
+        transform-origin: right bottom
+    }
+}
+
+/* Anim 3: Progress bar fill */
+.loader-progress {
+    width: 200px;
+    height: 3px;
+    margin: 20px auto;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, .06);
+    overflow: hidden;
+}
+
+.loader-progress-fill {
+    height: 100%;
+    width: 0;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--primary-500), var(--accent-500), var(--secondary-500));
+    background-size: 200% 100%;
+    animation: progressFill 2s ease forwards, progressShimmer 1s linear infinite;
+    will-change: width;
+}
+
+@keyframes progressFill {
+    to {
+        width: 100%
+    }
+}
+
+@keyframes progressShimmer {
+    to {
+        background-position: -200% 0
+    }
+}
+
+/* Anim 4: Typing status text */
+.loader-status {
+    font-family: var(--font-mono, monospace);
+    font-size: 12px;
+    color: var(--text-dim, #8b90b0);
+    letter-spacing: .08em;
+    overflow: hidden;
+    white-space: nowrap;
+    width: 0;
+    margin: 0 auto;
+    animation: typeText 1.5s steps(20) .5s forwards;
+    border-right: 2px solid var(--primary-400);
+}
+
+@keyframes typeText {
+    to {
+        width: 180px
+    }
+}
+
+/* Anim 5: Curtain lift (handled by .loader-exit class + JS) */
+
+/* ═══════════════════════════════════════════════════════════════
+   2. ANIMATED LOGO (Animations 6-8)
+   ═══════════════════════════════════════════════════════════════ */
+/* Anim 6: Logo idle gradient pulse */
+.bis-logo {
+    transition: transform .35s var(--ease, ease), filter .35s;
+}
+
+.bis-logo .logo-body-main {
+    fill: url(#nav-logo-grad);
+    transition: filter .35s;
+}
+
+.bis-logo .logo-shackle-main {
+    stroke: url(#nav-logo-grad);
+    transition: transform .35s var(--ease, ease);
+    transform-origin: 22px 14px;
+}
+
+.nav-brand:hover .bis-logo .logo-shackle-main {
+    transform: translateY(-2px) rotate(-10deg);
+}
+
+/* Anim 7: Logo hover glow */
+.nav-brand {
+    position: relative
+}
+
+.nav-brand::after {
+    content: "";
+    position: absolute;
+    inset: -4px;
+    border-radius: 12px;
+    background: radial-gradient(circle, rgba(99, 102, 241, .15), transparent 70%);
+    opacity: 0;
+    transition: opacity .35s;
+    pointer-events: none;
+}
+
+.nav-brand:hover::after {
+    opacity: 1
+}
+
+.nav-brand:hover .bis-logo {
+    transform: scale(1.08);
+    filter: drop-shadow(0 0 12px rgba(99, 102, 241, .5))
+}
+
+/* Anim 8: Logo loading spin */
+.bis-logo.logo-loading {
+    animation: logoSpin .8s linear infinite
+}
+
+@keyframes logoSpin {
+    to {
+        transform: rotate(360deg)
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   3. NAVIGATION (Animations 9-13)
+   ═══════════════════════════════════════════════════════════════ */
+/* Anim 9: Hamburger → X morph */
+.nav-toggle {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    z-index: 1001;
+    color: var(--text, #edf0f7);
+}
+
+.nav-toggle .bar {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: currentColor;
+    border-radius: 2px;
+    transition: transform .35s cubic-bezier(.68, -.55, .27, 1.55), opacity .25s;
+    position: absolute;
+    left: 11px;
+    will-change: transform;
+}
+
+.bar-1 {
+    top: 14px
+}
+
+.bar-2 {
+    top: 21px
+}
+
+.bar-3 {
+    top: 28px
+}
+
+.nav-toggle[aria-expanded="true"] .bar-1 {
+    transform: translateY(7px) rotate(45deg)
+}
+
+.nav-toggle[aria-expanded="true"] .bar-2 {
+    opacity: 0;
+    transform: scaleX(0)
+}
+
+.nav-toggle[aria-expanded="true"] .bar-3 {
+    transform: translateY(-7px) rotate(-45deg)
+}
+
+/* Anim 10: Nav link underline slide */
+.nav-links a {
+    position: relative
+}
+
+.nav-links a::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--primary-400), var(--accent-500));
+    border-radius: 2px;
+    transition: width .3s var(--ease, ease), left .3s var(--ease, ease);
+    will-change: width, left;
+}
+
+.nav-links a:hover::after,
+.nav-links a.active::after {
+    width: 100%;
+    left: 0
+}
+
+/* Anim 11: Active link glow dot */
+.nav-links a.active {
+    position: relative
+}
+
+.nav-links a.active::before {
+    content: "";
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--primary-400);
+    box-shadow: 0 0 8px var(--primary-400);
+    animation: navDotPulse 2s ease-in-out infinite;
+}
+
+@keyframes navDotPulse {
+
+    0%,
+    100% {
+        opacity: 1;
+        box-shadow: 0 0 8px var(--primary-400)
+    }
+
+    50% {
+        opacity: .5;
+        box-shadow: 0 0 16px var(--primary-400)
+    }
+}
+
+/* Anim 12: Mobile menu stagger */
+.nav-links.open li {
+    opacity: 0;
+    transform: translateX(20px);
+    animation: navItemSlide .4s var(--ease, ease) forwards;
+}
+
+.nav-links.open li:nth-child(1) {
+    animation-delay: .05s
+}
+
+.nav-links.open li:nth-child(2) {
+    animation-delay: .1s
+}
+
+.nav-links.open li:nth-child(3) {
+    animation-delay: .15s
+}
+
+.nav-links.open li:nth-child(4) {
+    animation-delay: .2s
+}
+
+@keyframes navItemSlide {
+    to {
+        opacity: 1;
+        transform: translateX(0)
+    }
+}
+
+/* Anim 13: Nav scroll compact (enhanced) */
+.navbar.scrolled {
+    padding-top: 6px;
+    padding-bottom: 6px;
+    background: rgba(6, 8, 15, .95);
+    backdrop-filter: blur(24px) saturate(1.8);
+    box-shadow: 0 2px 20px rgba(0, 0, 0, .4), 0 0 40px rgba(99, 102, 241, .05);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   4. SCROLL SYSTEM (Animations 14-18)
+   ═══════════════════════════════════════════════════════════════ */
+/* Anim 14: Scroll progress bar */
+.scroll-progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    z-index: 10001;
+    background: linear-gradient(90deg, var(--primary-500), var(--accent-500), var(--secondary-500));
+    width: 0;
+    transform-origin: left;
+    will-change: width;
+    transition: none;
+    box-shadow: 0 0 8px rgba(99, 102, 241, .4);
+}
+
+/* Anim 15: Parallax layers (applied by JS via transform) */
+[data-parallax] {
+    will-change: transform;
+    transition: none
+}
+
+/* Anim 16: Scroll reveal up */
+.anim-reveal-up {
+    opacity: 0;
+    transform: translate3d(0, 50px, 0);
+    transition: opacity .7s var(--ease, ease), transform .7s var(--ease, ease);
+    will-change: opacity, transform;
+}
+
+.anim-reveal-up.anim-visible {
+    opacity: 1;
+    transform: translate3d(0, 0, 0)
+}
+
+/* Anim 17: Scroll reveal scale */
+.anim-reveal-scale {
+    opacity: 0;
+    transform: scale3d(.85, .85, 1);
+    transition: opacity .6s var(--ease, ease), transform .6s var(--ease, ease);
+    will-change: opacity, transform;
+}
+
+.anim-reveal-scale.anim-visible {
+    opacity: 1;
+    transform: scale3d(1, 1, 1)
+}
+
+/* Anim 18: Scroll reveal left/right */
+.anim-reveal-left {
+    opacity: 0;
+    transform: translate3d(-60px, 0, 0);
+    transition: opacity .7s var(--ease, ease), transform .7s var(--ease, ease)
+}
+
+.anim-reveal-left.anim-visible {
+    opacity: 1;
+    transform: translate3d(0, 0, 0)
+}
+
+.anim-reveal-right {
+    opacity: 0;
+    transform: translate3d(60px, 0, 0);
+    transition: opacity .7s var(--ease, ease), transform .7s var(--ease, ease)
+}
+
+.anim-reveal-right.anim-visible {
+    opacity: 1;
+    transform: translate3d(0, 0, 0)
+}
+
+/* Stagger delays */
+[data-anim-delay="1"] {
+    transition-delay: .1s
+}
+
+[data-anim-delay="2"] {
+    transition-delay: .2s
+}
+
+[data-anim-delay="3"] {
+    transition-delay: .3s
+}
+
+[data-anim-delay="4"] {
+    transition-delay: .4s
+}
+
+[data-anim-delay="5"] {
+    transition-delay: .5s
+}
+
+[data-anim-delay="6"] {
+    transition-delay: .6s
+}
+
+[data-anim-delay="7"] {
+    transition-delay: .7s
+}
+
+[data-anim-delay="8"] {
+    transition-delay: .8s
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   5. INTERACTIVE STATES (Animations 19-24)
+   ═══════════════════════════════════════════════════════════════ */
+/* Anim 19: Button hover lift */
+.anim-btn {
+    transition: transform .3s var(--ease, ease), box-shadow .3s, background .3s;
+    will-change: transform;
+}
+
+.anim-btn:hover {
+    transform: translateY(-3px)
+}
+
+.anim-btn:active {
+    transform: translateY(0) scale(.97);
+    transition-duration: .1s
+}
+
+/* Anim 20: Button click ripple (container) */
+.ripple-container {
+    position: relative;
+    overflow: hidden
+}
+
+.ripple-ring {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .2);
+    transform: scale(0);
+    animation: rippleExpand .6s ease-out forwards;
+    pointer-events: none;
+}
+
+@keyframes rippleExpand {
+    to {
+        transform: scale(4);
+        opacity: 0
+    }
+}
+
+/* Anim 21: Magnetic hover (applied by JS) */
+.anim-magnetic {
+    transition: transform .3s var(--ease, ease);
+    will-change: transform
+}
+
+/* Anim 22: Card 3D tilt */
+.anim-tilt {
+    transition: transform .4s var(--ease, ease), box-shadow .4s;
+    transform-style: preserve-3d;
+    will-change: transform;
+}
+
+/* Anim 23: Link color sweep */
+.anim-link-sweep {
+    position: relative;
+    display: inline-block;
+    background: linear-gradient(90deg, var(--primary-300), var(--accent-400));
+    background-size: 0% 2px;
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    transition: background-size .35s var(--ease, ease);
+    padding-bottom: 2px;
+}
+
+.anim-link-sweep:hover {
+    background-size: 100% 2px
+}
+
+/* Anim 24: Cursor spotlight (applied by JS to sections with .anim-spotlight) */
+.anim-spotlight {
+    position: relative;
+    overflow: hidden
+}
+
+.spotlight-glow {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(99, 102, 241, .08), transparent 70%);
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: opacity .3s;
+    z-index: 0;
+}
+
+.anim-spotlight:hover .spotlight-glow {
+    opacity: 1
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   6. FORM INTERACTIONS (Animations 25-29)
+   ═══════════════════════════════════════════════════════════════ */
+/* Anim 25: Focus glow ring */
+.anim-input {
+    transition: border-color .3s, box-shadow .3s, background .3s;
+}
+
+.anim-input:focus {
+    border-color: var(--primary-400) !important;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, .15), 0 0 20px rgba(99, 102, 241, .08) !important;
+}
+
+/* Anim 26: Floating label */
+.anim-float-group {
+    position: relative
+}
+
+.anim-float-group label {
+    position: absolute;
+    left: 16px;
+    top: 14px;
+    font-size: var(--text-sm, .875rem);
+    color: var(--text-dim, #8b90b0);
+    transition: transform .25s, font-size .25s, color .25s;
+    pointer-events: none;
+    transform-origin: left top;
+}
+
+.anim-float-group input:focus~label,
+.anim-float-group input:not(:placeholder-shown)~label,
+.anim-float-group textarea:focus~label,
+.anim-float-group textarea:not(:placeholder-shown)~label {
+    transform: translateY(-22px) scale(.8);
+    color: var(--primary-400);
+}
+
+/* Anim 27: Validation shake */
+.anim-shake {
+    animation: formShake .5s ease
+}
+
+@keyframes formShake {
+
+    0%,
+    100% {
+        transform: translateX(0)
+    }
+
+    20%,
+    60% {
+        transform: translateX(-6px)
+    }
+
+    40%,
+    80% {
+        transform: translateX(6px)
+    }
+}
+
+/* Anim 28: Validation success checkmark */
+.anim-check-draw {
+    stroke-dasharray: 24;
+    stroke-dashoffset: 24;
+    animation: checkDraw .4s .1s ease forwards;
+}
+
+@keyframes checkDraw {
+    to {
+        stroke-dashoffset: 0
+    }
+}
+
+.anim-valid {
+    border-color: var(--success-400) !important;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, .12) !important
+}
+
+.anim-invalid {
+    border-color: var(--error-500) !important;
+    box-shadow: 0 0 0 3px rgba(244, 63, 94, .12) !important
+}
+
+/* Anim 29: Submit button loading */
+.anim-submit-loading {
+    pointer-events: none;
+    position: relative;
+    color: transparent !important
+}
+
+.anim-submit-loading::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid rgba(255, 255, 255, .3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin .6s linear infinite;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   7. ENCRYPT PAGE (Animations 30-35)
+   ═══════════════════════════════════════════════════════════════ */
+/* Anim 30: Security shield pulse */
+.shield-pulse {
+    position: relative;
+}
+
+.shield-pulse::before {
+    content: "🛡️";
+    position: absolute;
+    top: -12px;
+    right: -12px;
+    font-size: 1.4rem;
+    animation: shieldPulse 2s ease-in-out infinite;
+}
+
+@keyframes shieldPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: .8
+    }
+
+    50% {
+        transform: scale(1.2);
+        opacity: 1
+    }
+}
+
+/* Anim 31: Encryption progress ring */
+.encrypt-ring {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 16px;
+}
+
+.encrypt-ring circle {
+    fill: none;
+    stroke-width: 4;
+    stroke-linecap: round;
+    transform: rotate(-90deg);
+    transform-origin: center;
+}
+
+.encrypt-ring .ring-bg {
+    stroke: rgba(255, 255, 255, .06)
+}
+
+.encrypt-ring .ring-fill {
+    stroke: url(#ring-grad);
+    stroke-dasharray: 220;
+    stroke-dashoffset: 220;
+    transition: stroke-dashoffset 1.5s ease;
+}
+
+.encrypt-ring.ring-active .ring-fill {
+    stroke-dashoffset: 0
+}
+
+/* Anim 32: Bit stream canvas */
+.bit-stream-canvas {
+    position: absolute;
+    inset: 0;
+    opacity: .06;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Anim 33: Capacity meter */
+.capacity-meter {
+    height: 8px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, .06);
+    overflow: hidden;
+    margin-top: 8px;
+}
+
+.capacity-meter-fill {
+    height: 100%;
+    border-radius: 4px;
+    width: 0;
+    background: linear-gradient(90deg, var(--success-500), var(--primary-500));
+    transition: width 1.2s cubic-bezier(.4, 0, .2, 1);
+}
+
+/* Anim 34: Method card selection glow */
+.method-card {
+    transition: transform .3s, border-color .3s, box-shadow .3s
+}
+
+.method-card.active {
+    animation: methodSelectPop .4s ease;
+}
+
+@keyframes methodSelectPop {
+    0% {
+        transform: scale(1)
+    }
+
+    50% {
+        transform: scale(1.05)
+    }
+
+    100% {
+        transform: scale(1)
+    }
+}
+
+/* Anim 35: Success burst particles */
+.success-burst {
+    position: relative
+}
+
+.burst-particle {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: burstFly .8s ease forwards;
+}
+
+@keyframes burstFly {
+    0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1
+    }
+
+    100% {
+        opacity: 0
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   8. DECRYPT PAGE (Animations 36-40)
+   ═══════════════════════════════════════════════════════════════ */
+/* Anim 36: Lock open animation */
+.lock-anim {
+    display: inline-block;
+    transition: transform .5s var(--ease, ease)
+}
+
+.lock-anim.unlocked svg .logo-shackle-main {
+    transform: translateY(-5px) rotate(-15deg);
+    transition: transform .6s cubic-bezier(.34, 1.56, .64, 1);
+}
+
+/* Anim 37: Scan line */
+.scan-line-container {
+    position: relative;
+    overflow: hidden
+}
+
+.scan-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--primary-400), var(--accent-500), transparent);
+    opacity: 0;
+    top: 0;
+    pointer-events: none;
+    animation: scanSweep 2s ease-in-out infinite;
+}
+
+.scan-line-container.scanning .scan-line {
+    opacity: 1
+}
+
+@keyframes scanSweep {
+    0% {
+        top: 0
+    }
+
+    100% {
+        top: 100%
+    }
+}
+
+/* Anim 38: Typewriter reveal */
+.anim-typewriter {
+    overflow: hidden;
+    white-space: pre-wrap;
+    border-right: 2px solid var(--primary-400);
+    animation: typewriterCursor .6s step-end infinite;
+}
+
+@keyframes typewriterCursor {
+
+    0%,
+    100% {
+        border-color: var(--primary-400)
+    }
+
+    50% {
+        border-color: transparent
+    }
+}
+
+/* Anim 39: Status pulse dots */
+.status-dots {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin: 12px 0
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--text-dim, #8b90b0);
+    animation: statusPulse 1.4s ease-in-out infinite;
+}
+
+.status-dot:nth-child(2) {
+    animation-delay: .2s
+}
+
+.status-dot:nth-child(3) {
+    animation-delay: .4s
+}
+
+@keyframes statusPulse {
+
+    0%,
+    100% {
+        opacity: .3;
+        transform: scale(.8)
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.2)
+    }
+}
+
+/* Anim 40: Decrypt result reveal */
+.decrypt-reveal {
+    opacity: 0;
+    transform: translate3d(0, 30px, 0) scale(.95);
+    transition: all .6s cubic-bezier(.34, 1.56, .64, 1);
+}
+
+.decrypt-reveal.revealed {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1)
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   9. ABOUT PAGE (Animations 41-45)
+   ═══════════════════════════════════════════════════════════════ */
+/* Anim 41: Timeline line draw */
+.timeline {
+    position: relative;
+    padding-left: 40px
+}
+
+.timeline::before {
+    content: "";
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(180deg, var(--primary-500), var(--accent-500), var(--secondary-500));
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform 1.5s cubic-bezier(.4, 0, .2, 1);
+}
+
+.timeline.anim-visible::before {
+    transform: scaleY(1)
+}
+
+/* Anim 42: Timeline node pop */
+.timeline-node {
+    position: relative;
+    margin-bottom: 40px;
+    opacity: 0;
+    transform: translateX(20px);
+    transition: all .5s var(--ease, ease);
+}
+
+.timeline-node::before {
+    content: "";
+    position: absolute;
+    left: -32px;
+    top: 6px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--primary-500);
+    border: 3px solid var(--bg, #06080f);
+    box-shadow: 0 0 0 2px var(--primary-500);
+    transform: scale(0);
+    transition: transform .4s cubic-bezier(.34, 1.56, .64, 1);
+}
+
+.timeline-node.anim-visible {
+    opacity: 1;
+    transform: translateX(0)
+}
+
+.timeline-node.anim-visible::before {
+    transform: scale(1)
+}
+
+/* Anim 43: Mission text word cascade */
+.word-cascade .word {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(20px) rotateX(-40deg);
+    transition: all .4s var(--ease, ease);
+}
+
+.word-cascade.anim-visible .word {
+    opacity: 1;
+    transform: translateY(0) rotateX(0)
+}
+
+/* Anim 44: Tech card flip */
+.flip-card {
+    perspective: 1000px;
+    cursor: pointer
+}
+
+.flip-card-inner {
+    position: relative;
+    width: 100%;
+    min-height: 200px;
+    transition: transform .6s cubic-bezier(.4, 0, .2, 1);
+    transform-style: preserve-3d;
+}
+
+.flip-card:hover .flip-card-inner {
+    transform: rotateY(180deg)
+}
+
+.flip-card-front,
+.flip-card-back {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    border-radius: var(--r-lg, 16px);
+    padding: var(--sp-6, 24px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.flip-card-back {
+    transform: rotateY(180deg);
+    background: var(--surface-solid, #0e111c)
+}
+
+/* Anim 45: Architecture diagram build */
+.arch-block {
+    opacity: 0;
+    transform: translate3d(0, 20px, 0);
+    transition: all .5s var(--ease, ease);
+}
+
+.arch-block.anim-visible {
+    opacity: 1;
+    transform: translate3d(0, 0, 0)
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   10. HOMEPAGE EXTRAS (Animations 46-50)
+   ═══════════════════════════════════════════════════════════════ */
+/* Anim 46: Content stagger from different directions */
+.anim-stagger-left {
+    opacity: 0;
+    transform: translate3d(-40px, 20px, 0);
+    transition: all .7s var(--ease, ease)
+}
+
+.anim-stagger-right {
+    opacity: 0;
+    transform: translate3d(40px, 20px, 0);
+    transition: all .7s var(--ease, ease)
+}
+
+.anim-stagger-left.anim-visible,
+.anim-stagger-right.anim-visible {
+    opacity: 1;
+    transform: translate3d(0, 0, 0)
+}
+
+/* Anim 47: CTA ambient pulse */
+.cta-pulse {
+    position: relative;
+}
+
+.cta-pulse::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    background: linear-gradient(135deg, var(--primary-500), var(--accent-500));
+    opacity: 0;
+    z-index: -1;
+    filter: blur(20px);
+    animation: ctaAmbientPulse 3s ease-in-out infinite;
+}
+
+@keyframes ctaAmbientPulse {
+
+    0%,
+    100% {
+        opacity: 0;
+        transform: scale(1)
+    }
+
+    50% {
+        opacity: .3;
+        transform: scale(1.05)
+    }
+}
+
+/* Anim 48: Parallax text shadow */
+.parallax-text {
+    text-shadow: 0 0 40px rgba(99, 102, 241, .15);
+    transition: text-shadow .3s;
+}
+
+.parallax-text:hover {
+    text-shadow: 0 0 60px rgba(99, 102, 241, .3)
+}
+
+/* Anim 49: Image lazy reveal */
+.anim-img-reveal {
+    opacity: 0;
+    transform: scale(.92);
+    filter: blur(10px);
+    transition: all .8s var(--ease, ease);
+}
+
+.anim-img-reveal.anim-visible {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0)
+}
+
+/* Anim 50: Smooth section scroll snap */
+.snap-section {
+    scroll-snap-align: start
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   11. GLOBAL UTILITIES (Animations 51-54)
+   ═══════════════════════════════════════════════════════════════ */
+/* Anim 51: Skeleton shimmer */
+.skeleton {
+    position: relative;
+    overflow: hidden;
+    background: rgba(255, 255, 255, .04);
+    border-radius: 8px;
+}
+
+.skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .06), transparent);
+    animation: skeletonShimmer 1.5s ease-in-out infinite;
+    transform: translateX(-100%);
+}
+
+@keyframes skeletonShimmer {
+    to {
+        transform: translateX(100%)
+    }
+}
+
+/* Anim 52: Modal entrance/exit */
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(0, 0, 0, 0);
+    backdrop-filter: blur(0);
+    transition: background .35s, backdrop-filter .35s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.modal-backdrop.modal-open {
+    background: rgba(0, 0, 0, .6);
+    backdrop-filter: blur(8px);
+    pointer-events: auto;
+}
+
+.modal-panel {
+    transform: scale(.9) translateY(20px);
+    opacity: 0;
+    transition: all .4s cubic-bezier(.34, 1.56, .64, 1);
+    max-width: 540px;
+    width: 90%;
+    background: var(--surface-solid, #0e111c);
+    border: 1px solid var(--glass-border, rgba(255, 255, 255, .08));
+    border-radius: var(--r-lg, 16px);
+    padding: var(--sp-8, 32px);
+    box-shadow: 0 24px 48px rgba(0, 0, 0, .5);
+}
+
+.modal-open .modal-panel {
+    transform: scale(1) translateY(0);
+    opacity: 1
+}
+
+/* Anim 53: Back-to-top button */
+.back-to-top {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 9990;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--surface-solid, #0e111c);
+    border: 1px solid rgba(255, 255, 255, .1);
+    color: var(--text, #edf0f7);
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+    transition: all .3s var(--ease, ease);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, .3);
+    backdrop-filter: blur(12px);
+}
+
+.back-to-top.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto
+}
+
+.back-to-top:hover {
+    background: var(--primary-600, #4f46e5);
+    border-color: var(--primary-400);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(99, 102, 241, .3);
+}
+
+/* Anim 54: Enhanced toast animation */
+.toast {
+    transition: transform .4s cubic-bezier(.34, 1.56, .64, 1), opacity .3s;
+    transform: translateX(120%);
+}
+
+.toast.show {
+    transform: translateX(0)
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   12. PAGE CONTENT ENTRANCE (post-loader)
+   ═══════════════════════════════════════════════════════════════ */
+.content-loaded .navbar {
+    animation: contentFadeDown .6s ease both
+}
+
+.content-loaded main {
+    animation: contentFadeUp .6s .1s ease both
+}
+
+.content-loaded footer {
+    animation: contentFadeUp .6s .3s ease both
+}
+
+@keyframes contentFadeDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px)
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0)
+    }
+}
+
+@keyframes contentFadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px)
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0)
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   13. PREFERS REDUCED MOTION (Accessibility)
+   ═══════════════════════════════════════════════════════════════ */
+@media(prefers-reduced-motion:reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    .page-loader {
+        display: none !important
+    }
+
+    .scroll-progress-bar {
+        display: none
+    }
+
+    .anim-reveal-up,
+    .anim-reveal-scale,
+    .anim-reveal-left,
+    .anim-reveal-right,
+    .anim-stagger-left,
+    .anim-stagger-right,
+    .enter-up,
+    .enter-scale,
+    .timeline-node,
+    .arch-block,
+    .word-cascade .word,
+    .anim-img-reveal {
+        opacity: 1 !important;
+        transform: none !important;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   14. RESPONSIVE OVERRIDES
+   ═══════════════════════════════════════════════════════════════ */
+@media(max-width:768px) {
+    .nav-toggle {
+        display: flex
+    }
+
+    .scroll-progress-bar {
+        height: 2px
+    }
+
+    .back-to-top {
+        bottom: 16px;
+        right: 16px;
+        width: 40px;
+        height: 40px
+    }
+}

@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+{% block title %}Decrypt — BIS Steganography{% endblock %}
+{% block meta_desc %}Extract hidden messages from text, audio, video, or images embedded using BIS steganography.{%
+endblock %}
+
+{% block content %}
+<div class="page-header anim-spotlight">
+    <div class="breadcrumb anim-reveal-up">
+        <a href="/" class="anim-link-sweep">Home</a> <span>/</span> <span>Decrypt</span>
+    </div>
+    <h1 class="anim-reveal-up parallax-text" data-anim-delay="1">
+        <span class="gradient-text">Decrypt</span> a Hidden Message
+    </h1>
+    <p class="anim-reveal-up" data-anim-delay="2">Provide the stego content and password (if used) to extract the hidden
+        message.</p>
+</div>
+
+<div class="container-md" style="padding-bottom:var(--sp-24)">
+    <!-- Step 1: Method -->
+    <div class="card anim-reveal-up" style="margin-bottom:var(--sp-5)">
+        <div class="card-header">
+            <div class="card-number" aria-hidden="true">1</div>
+            <div>
+                <h2>Select Method</h2>
+                <p>Choose the steganography method used to hide the message.</p>
+            </div>
+        </div>
+        <div class="method-grid" role="radiogroup" aria-label="Decryption method">
+            <button class="method-card active anim-tilt ripple-container" data-method="text" role="radio"
+                aria-checked="true">
+                <div class="method-icon">📝</div>
+                <div class="method-info">
+                    <h3>Text</h3>
+                    <p>Zero-width chars</p>
+                </div>
+                <div class="method-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12" />
+                    </svg></div>
+            </button>
+            <button class="method-card anim-tilt ripple-container" data-method="audio" role="radio"
+                aria-checked="false">
+                <div class="method-icon">🎵</div>
+                <div class="method-info">
+                    <h3>Audio</h3>
+                    <p>LSB in WAV</p>
+                </div>
+                <div class="method-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12" />
+                    </svg></div>
+            </button>
+            <button class="method-card anim-tilt ripple-container" data-method="video" role="radio"
+                aria-checked="false">
+                <div class="method-icon">🎬</div>
+                <div class="method-info">
+                    <h3>Video</h3>
+                    <p>LSB in frames</p>
+                </div>
+                <div class="method-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12" />
+                    </svg></div>
+            </button>
+            <button class="method-card anim-tilt ripple-container" data-method="image" role="radio"
+                aria-checked="false">
+                <div class="method-icon">🖼️</div>
+                <div class="method-info">
+                    <h3>Image</h3>
+                    <p>Neural U-Net</p>
+                </div>
+                <div class="method-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12" />
+                    </svg></div>
+            </button>
+        </div>
+    </div>
+
+    <!-- Step 2: Stego Content -->
+    <div class="card anim-reveal-up scan-line-container" data-anim-delay="1" style="margin-bottom:var(--sp-5)"
+        id="step-stego">
+        <!-- Scan Line (Anim 37) -->
+        <div class="scan-line"></div>
+
+        <div class="card-header">
+            <div class="card-number" aria-hidden="true">2</div>
+            <div>
+                <h2 id="stego-title">Provide Stego Text</h2>
+                <p id="stego-desc">Paste the stego content containing the hidden message.</p>
+            </div>
+        </div>
+
+        <!-- Text input -->
+        <div id="dec-text-input">
+            <div class="form-group"><textarea id="stego-text" placeholder="Paste stego text here..." rows="5"
+                    aria-label="Stego text" class="anim-input"></textarea></div>
+        </div>
+
+        <!-- Audio input -->
+        <div id="dec-audio-input" class="hidden">
+            <div class="drop-zone ripple-container" id="dec-audio-dropzone">
+                <div class="drop-zone-content"><svg width="48" height="48" viewBox="0 0 24 24" fill="none"
+                        stroke="var(--primary-400)" stroke-width="1.5" opacity=".6">
+                        <path d="M9 18V5l12-2v13" />
+                        <circle cx="6" cy="18" r="3" />
+                        <circle cx="18" cy="16" r="3" />
+                    </svg>
+                    <p>Drag &amp; drop stego WAV audio</p><span class="drop-hint">or click to browse</span>
+                </div><input type="file" id="dec-audio-file" accept=".wav" hidden>
+                <div class="file-badge hidden" id="dec-audio-filename"></div>
+            </div>
+        </div>
+
+        <!-- Video input -->
+        <div id="dec-video-input" class="hidden">
+            <div class="drop-zone ripple-container" id="dec-video-dropzone">
+                <div class="drop-zone-content"><svg width="48" height="48" viewBox="0 0 24 24" fill="none"
+                        stroke="var(--primary-400)" stroke-width="1.5" opacity=".6">
+                        <polygon points="23 7 16 12 23 17 23 7" />
+                        <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                    </svg>
+                    <p>Drag &amp; drop stego video</p><span class="drop-hint">or click to browse</span>
+                </div><input type="file" id="dec-video-file" accept="video/*,.mp4,.avi,.mkv" hidden>
+                <div class="file-badge hidden" id="dec-video-filename"></div>
+            </div>
+        </div>
+
+        <!-- Image input -->
+        <div id="dec-image-input" class="hidden">
+            <div class="drop-zone ripple-container" id="dec-image-dropzone">
+                <div class="drop-zone-content"><svg width="48" height="48" viewBox="0 0 24 24" fill="none"
+                        stroke="var(--primary-400)" stroke-width="1.5" opacity=".6">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                        <circle cx="8.5" cy="8.5" r="1.5" />
+                        <polyline points="21 15 16 10 5 21" />
+                    </svg>
+                    <p>Drag &amp; drop stego image (PNG)</p><span class="drop-hint">or click to browse</span>
+                </div><input type="file" id="dec-image-file" accept="image/png" hidden>
+                <div class="file-badge hidden" id="dec-image-filename"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 3: Password -->
+    <div class="card anim-reveal-up" data-anim-delay="2" style="margin-bottom:var(--sp-5)">
+        <div class="card-header">
+            <div class="card-number" aria-hidden="true">3</div>
+            <div>
+                <h2>Password</h2>
+                <p>Enter the password if the message was encrypted.</p>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="dec-password"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <path
+                        d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
+                </svg>
+                Decryption Password <span class="opt-label">(if used)</span></label>
+            <input type="password" id="dec-password" class="text-input anim-input" placeholder="Leave empty if none"
+                aria-label="Decryption password">
+        </div>
+    </div>
+
+    <!-- Decrypt Button -->
+    <button class="btn btn-full anim-btn anim-magnetic cta-pulse ripple-container" id="btn-decrypt">
+        <!-- Lock Anim (Anim 36) -->
+        <span class="lock-anim" id="decrypt-lock">
+            <svg class="bis-logo" viewBox="0 0 40 40" width="20" height="20">
+                <rect class="logo-body-main" x="8" y="18" width="24" height="16" rx="4" fill="var(--primary-400)" />
+                <path class="logo-shackle-main" d="M13 18v-5a7 7 0 0114 0v5" fill="none" stroke="var(--primary-300)"
+                    stroke-width="3" stroke-linecap="round" />
+            </svg>
+        </span>
+        Extract Hidden Message
+    </button>
+
+    <!-- Status Dots during processing (Anim 39) -->
+    <div class="status-dots hidden" id="decrypt-dots" aria-hidden="true">
+        <div class="status-dot"></div>
+        <div class="status-dot"></div>
+        <div class="status-dot"></div>
+    </div>
+
+    <!-- Result -->
+    <div class="result-card hidden decrypt-reveal" id="decrypt-result">
+        <div class="result-header"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="var(--success-400)" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
+                <polyline points="22 4 12 14.01 9 11.01" class="anim-check-draw" />
+            </svg>
+            <h3>Message Extracted!</h3>
+        </div>
+        <div class="result-body">
+            <label>Hidden Message</label>
+            <div id="dec-output" class="stego-output"
+                style="min-height:80px;padding:var(--sp-4);border-radius:8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)">
+            </div>
+            <div class="result-actions" style="margin-top:var(--sp-3)">
+                <button class="btn btn-ghost btn-sm ripple-container" id="btn-copy-dec">📋 Copy</button>
+            </div>
+        </div>
+        <div class="metrics-grid" id="decrypt-metrics"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='decrypt.js') }}"></script>
+{% endblock %}

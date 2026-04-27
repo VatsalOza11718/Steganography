@@ -1,0 +1,834 @@
+{% extends "base.html" %}
+{% block title %}Fine-Tuning Dashboard — BIS{% endblock %}
+{% block head %}
+<style>
+    /* ═══ Dashboard Layout ═══ */
+    .dashboard-container {
+        max-width: 1400px;
+        margin: 2rem auto;
+        padding: 0 1.5rem;
+    }
+    
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .dashboard-title {
+        font-size: 2rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #818cf8, #a855f7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .dashboard-actions {
+        display: flex;
+        gap: 0.75rem;
+    }
+    
+    /* ═══ Stats Cards ═══ */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        backdrop-filter: blur(12px);
+        transition: transform 0.2s, border-color 0.2s;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-2px);
+        border-color: rgba(129, 140, 248, 0.3);
+    }
+    
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .stat-icon.gpu { background: linear-gradient(135deg, #22c55e33, #22c55e11); }
+    .stat-icon.jobs { background: linear-gradient(135deg, #818cf833, #818cf811); }
+    .stat-icon.queue { background: linear-gradient(135deg, #f59e0b33, #f59e0b11); }
+    .stat-icon.memory { background: linear-gradient(135deg, #ec489933, #ec489911); }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 0.25rem;
+    }
+    
+    .stat-label {
+        font-size: 0.875rem;
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .stat-bar {
+        height: 4px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 2px;
+        margin-top: 1rem;
+        overflow: hidden;
+    }
+    
+    .stat-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #818cf8, #a855f7);
+        border-radius: 2px;
+        transition: width 0.3s;
+    }
+    
+    /* ═══ Job Cards ═══ */
+    .jobs-section {
+        margin-bottom: 2rem;
+    }
+    
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #fff;
+    }
+    
+    .jobs-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+        gap: 1rem;
+    }
+    
+    .job-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 1rem;
+        padding: 1.25rem;
+        backdrop-filter: blur(12px);
+        transition: border-color 0.2s;
+    }
+    
+    .job-card:hover {
+        border-color: rgba(129, 140, 248, 0.3);
+    }
+    
+    .job-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+    }
+    
+    .job-id {
+        font-family: 'SF Mono', 'Consolas', monospace;
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.4);
+    }
+    
+    .job-modality {
+        font-size: 0.875rem;
+        font-weight: 600;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        text-transform: uppercase;
+    }
+    
+    .job-modality.text { background: #818cf833; color: #818cf8; }
+    .job-modality.audio { background: #22c55e33; color: #22c55e; }
+    .job-modality.video { background: #f59e0b33; color: #f59e0b; }
+    .job-modality.image { background: #ec489933; color: #ec4899; }
+    
+    .job-status {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+    }
+    
+    .status-dot.queued { background: #64748b; }
+    .status-dot.preprocessing { background: #f59e0b; animation: pulse 1.5s infinite; }
+    .status-dot.training { background: #22c55e; animation: pulse 1.5s infinite; }
+    .status-dot.evaluating { background: #818cf8; animation: pulse 1.5s infinite; }
+    .status-dot.completed { background: #22c55e; }
+    .status-dot.failed { background: #ef4444; }
+    .status-dot.cancelled { background: #64748b; }
+    
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+    
+    .status-text {
+        font-size: 0.875rem;
+        color: rgba(255, 255, 255, 0.7);
+        text-transform: capitalize;
+    }
+    
+    .job-progress {
+        margin-bottom: 1rem;
+    }
+    
+    .progress-bar {
+        height: 6px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 3px;
+        overflow: hidden;
+        margin-bottom: 0.5rem;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #818cf8, #a855f7);
+        border-radius: 3px;
+        transition: width 0.3s;
+    }
+    
+    .progress-stats {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .job-metrics {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        font-size: 0.875rem;
+    }
+    
+    .metric {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 0.5rem;
+    }
+    
+    .metric-label {
+        color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .metric-value {
+        color: #fff;
+        font-family: 'SF Mono', 'Consolas', monospace;
+    }
+    
+    .job-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .job-action {
+        flex: 1;
+        padding: 0.5rem;
+        font-size: 0.75rem;
+        text-align: center;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: background 0.2s;
+        border: none;
+        font-weight: 500;
+    }
+    
+    .job-action.cancel {
+        background: rgba(239, 68, 68, 0.2);
+        color: #ef4444;
+    }
+    
+    .job-action.cancel:hover {
+        background: rgba(239, 68, 68, 0.3);
+    }
+    
+    .job-action.download {
+        background: rgba(129, 140, 248, 0.2);
+        color: #818cf8;
+    }
+    
+    .job-action.download:hover {
+        background: rgba(129, 140, 248, 0.3);
+    }
+    
+    .job-action.view {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+    }
+    
+    .job-action.view:hover {
+        background: rgba(255, 255, 255, 0.15);
+    }
+    
+    /* ═══ New Job Modal ═══ */
+    .modal-form {
+        display: grid;
+        gap: 1.25rem;
+    }
+    
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .form-group label {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .form-group select,
+    .form-group input {
+        padding: 0.75rem 1rem;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 0.5rem;
+        color: #fff;
+        font-size: 0.875rem;
+        transition: border-color 0.2s;
+    }
+    
+    .form-group select:focus,
+    .form-group input:focus {
+        outline: none;
+        border-color: #818cf8;
+    }
+    
+    .form-group select option {
+        background: #1a1a2e;
+    }
+    
+    .preset-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 0.75rem;
+    }
+    
+    .preset-card {
+        padding: 1rem;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 0.75rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .preset-card:hover {
+        border-color: rgba(129, 140, 248, 0.5);
+    }
+    
+    .preset-card.selected {
+        border-color: #818cf8;
+        background: rgba(129, 140, 248, 0.1);
+    }
+    
+    .preset-icon {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .preset-name {
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.8);
+    }
+    
+    /* ═══ Live Logs Panel ═══ */
+    .logs-panel {
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 1rem;
+        padding: 1rem;
+        margin-top: 2rem;
+    }
+    
+    .logs-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .logs-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #fff;
+    }
+    
+    .logs-container {
+        background: #0a0a0f;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        max-height: 300px;
+        overflow-y: auto;
+        font-family: 'SF Mono', 'Consolas', monospace;
+        font-size: 0.75rem;
+        line-height: 1.6;
+    }
+    
+    .log-entry {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .log-time {
+        color: rgba(255, 255, 255, 0.3);
+        white-space: nowrap;
+    }
+    
+    .log-level {
+        padding: 0 0.25rem;
+        border-radius: 2px;
+        text-transform: uppercase;
+        font-size: 0.625rem;
+        font-weight: 600;
+    }
+    
+    .log-level.info { background: #818cf833; color: #818cf8; }
+    .log-level.warning { background: #f59e0b33; color: #f59e0b; }
+    .log-level.error { background: #ef444433; color: #ef4444; }
+    
+    .log-message {
+        color: rgba(255, 255, 255, 0.8);
+        word-break: break-word;
+    }
+    
+    /* ═══ Empty State ═══ */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .empty-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+    
+    .empty-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 0.5rem;
+    }
+    
+    /* ═══ Responsive ═══ */
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .jobs-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .dashboard-header {
+            flex-direction: column;
+            align-items: stretch;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Header -->
+    <div class="dashboard-header">
+        <h1 class="dashboard-title">Fine-Tuning Dashboard</h1>
+        <div class="dashboard-actions">
+            <button class="btn btn-ghost" onclick="refreshDashboard()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 12a9 9 0 11-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/>
+                    <path d="M21 3v5h-5"/>
+                </svg>
+                Refresh
+            </button>
+            <button class="btn btn-primary" onclick="showNewJobModal()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"/>
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                New Job
+            </button>
+        </div>
+    </div>
+    
+    <!-- Stats -->
+    <div class="stats-grid" id="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon gpu">🖥️</div>
+            <div class="stat-value" id="stat-gpu-name">—</div>
+            <div class="stat-label">GPU Status</div>
+            <div class="stat-bar">
+                <div class="stat-bar-fill" id="stat-gpu-bar" style="width: 0%"></div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon memory">💾</div>
+            <div class="stat-value" id="stat-memory">—</div>
+            <div class="stat-label">VRAM Usage</div>
+            <div class="stat-bar">
+                <div class="stat-bar-fill" id="stat-memory-bar" style="width: 0%"></div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon jobs">⚡</div>
+            <div class="stat-value" id="stat-active">0</div>
+            <div class="stat-label">Active Jobs</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon queue">📋</div>
+            <div class="stat-value" id="stat-queued">0</div>
+            <div class="stat-label">Queued Jobs</div>
+        </div>
+    </div>
+    
+    <!-- Jobs -->
+    <div class="jobs-section">
+        <div class="section-header">
+            <h2 class="section-title">Training Jobs</h2>
+            <select id="jobs-filter" onchange="filterJobs()" style="padding: 0.5rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.5rem; color: #fff;">
+                <option value="all">All Jobs</option>
+                <option value="active">Active</option>
+                <option value="completed">Completed</option>
+                <option value="failed">Failed</option>
+            </select>
+        </div>
+        <div class="jobs-grid" id="jobs-grid">
+            <!-- Job cards populated by JS -->
+        </div>
+        <div class="empty-state" id="empty-state" style="display: none;">
+            <div class="empty-icon">🎯</div>
+            <div class="empty-title">No fine-tuning jobs yet</div>
+            <p>Click "New Job" to start fine-tuning a model</p>
+        </div>
+    </div>
+    
+    <!-- Live Logs -->
+    <div class="logs-panel" id="logs-panel" style="display: none;">
+        <div class="logs-header">
+            <div class="logs-title">Live Training Logs</div>
+            <button class="btn btn-ghost btn-sm" onclick="closeLogs()">×</button>
+        </div>
+        <div class="logs-container" id="logs-container">
+            <!-- Log entries populated by WebSocket -->
+        </div>
+    </div>
+</div>
+
+<!-- New Job Modal -->
+<div class="modal-backdrop" id="modal-new-job" style="display: none;">
+    <div class="modal-panel" style="max-width: 500px; width: 100%;">
+        <h3 style="margin-bottom: 1.5rem; font-size: 1.25rem; font-weight: 600;">Start Fine-Tuning Job</h3>
+        <form class="modal-form" id="new-job-form" onsubmit="submitNewJob(event)">
+            <div class="form-group">
+                <label>Modality</label>
+                <select id="job-modality" required onchange="updatePresets()">
+                    <option value="text">📝 Text (Qwen 2.5)</option>
+                    <option value="audio">🎵 Audio (MusicGen)</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Preset</label>
+                <div class="preset-grid" id="preset-grid">
+                    <!-- Presets populated by JS -->
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Dataset Directory</label>
+                <input type="text" id="job-dataset" placeholder="/path/to/dataset" required>
+            </div>
+            
+            <div style="display: flex; gap: 0.75rem; margin-top: 1rem;">
+                <button type="button" class="btn btn-ghost" style="flex: 1;" onclick="closeModal('modal-new-job')">Cancel</button>
+                <button type="submit" class="btn btn-primary" style="flex: 1;">Start Training</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+// Dashboard state
+let jobs = [];
+let selectedPreset = null;
+let currentLogJob = null;
+
+// Preset definitions
+const presets = {
+    text: [
+        { id: 'qwen25-chat', name: 'Qwen 2.5 Chat', icon: '💬' },
+        { id: 'qwen25-128k', name: 'Qwen 128K', icon: '📚' },
+    ],
+    audio: [
+        { id: 'musicgen-melody', name: 'MusicGen Melody', icon: '🎼' },
+        { id: 'musicgen-large', name: 'MusicGen Large', icon: '🎹' },
+    ],
+};
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+    refreshDashboard();
+    updatePresets();
+    setInterval(refreshDashboard, 5000); // Auto-refresh every 5s
+});
+
+async function refreshDashboard() {
+    try {
+        // Fetch GPU status
+        const gpuRes = await fetch('/api/fine-tune/gpu-status');
+        const gpu = await gpuRes.json();
+        
+        if (gpu.gpu?.available) {
+            document.getElementById('stat-gpu-name').textContent = gpu.gpu.device_name?.split(' ').slice(0, 2).join(' ') || 'GPU';
+            const usedPct = gpu.gpu.total_gb > 0 ? 
+                Math.round((gpu.gpu.allocated_gb / gpu.gpu.total_gb) * 100) : 0;
+            document.getElementById('stat-gpu-bar').style.width = usedPct + '%';
+            document.getElementById('stat-memory').textContent = 
+                `${gpu.gpu.allocated_gb} / ${gpu.gpu.total_gb} GB`;
+            document.getElementById('stat-memory-bar').style.width = usedPct + '%';
+        } else {
+            document.getElementById('stat-gpu-name').textContent = 'No GPU';
+            document.getElementById('stat-memory').textContent = 'N/A';
+        }
+        
+        document.getElementById('stat-active').textContent = gpu.active_jobs || 0;
+        document.getElementById('stat-queued').textContent = gpu.queued_jobs || 0;
+        
+        // Fetch jobs
+        const jobsRes = await fetch('/api/fine-tune/jobs');
+        const data = await jobsRes.json();
+        jobs = data.jobs || [];
+        
+        renderJobs();
+    } catch (err) {
+        console.error('Failed to refresh dashboard:', err);
+    }
+}
+
+function renderJobs() {
+    const filter = document.getElementById('jobs-filter').value;
+    const grid = document.getElementById('jobs-grid');
+    const empty = document.getElementById('empty-state');
+    
+    let filtered = jobs;
+    if (filter === 'active') {
+        filtered = jobs.filter(j => ['training', 'preprocessing', 'evaluating', 'queued'].includes(j.status));
+    } else if (filter === 'completed') {
+        filtered = jobs.filter(j => j.status === 'completed');
+    } else if (filter === 'failed') {
+        filtered = jobs.filter(j => ['failed', 'cancelled'].includes(j.status));
+    }
+    
+    if (filtered.length === 0) {
+        grid.style.display = 'none';
+        empty.style.display = 'block';
+        return;
+    }
+    
+    grid.style.display = 'grid';
+    empty.style.display = 'none';
+    
+    grid.innerHTML = filtered.map(job => `
+        <div class="job-card" data-job-id="${job.job_id}">
+            <div class="job-header">
+                <div>
+                    <span class="job-modality ${job.modality}">${job.modality}</span>
+                    <div class="job-id">${job.job_id}</div>
+                </div>
+                <div class="job-status">
+                    <span class="status-dot ${job.status}"></span>
+                    <span class="status-text">${job.status}</span>
+                </div>
+            </div>
+            
+            <div class="job-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: ${job.progress_pct || 0}%"></div>
+                </div>
+                <div class="progress-stats">
+                    <span>Step ${job.current_step || 0} / ${job.total_steps || '—'}</span>
+                    <span>${Math.round(job.progress_pct || 0)}%</span>
+                </div>
+            </div>
+            
+            <div class="job-metrics">
+                <div class="metric">
+                    <span class="metric-label">Epoch</span>
+                    <span class="metric-value">${job.current_epoch || 0}/${job.total_epochs || '—'}</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Loss</span>
+                    <span class="metric-value">${job.current_loss?.toFixed(4) || '—'}</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                ${job.status === 'training' || job.status === 'preprocessing' ? 
+                    `<button class="job-action cancel" onclick="cancelJob('${job.job_id}')">Cancel</button>` : ''}
+                ${job.status === 'training' ? 
+                    `<button class="job-action view" onclick="viewLogs('${job.job_id}')">Logs</button>` : ''}
+                ${job.status === 'completed' && job.lora_path ? 
+                    `<button class="job-action download" onclick="downloadLora('${job.job_id}')">Download LoRA</button>` : ''}
+            </div>
+        </div>
+    `).join('');
+}
+
+function filterJobs() {
+    renderJobs();
+}
+
+function updatePresets() {
+    const modality = document.getElementById('job-modality').value;
+    const grid = document.getElementById('preset-grid');
+    const modalityPresets = presets[modality] || [];
+    
+    selectedPreset = modalityPresets[0]?.id || null;
+    
+    grid.innerHTML = modalityPresets.map((p, i) => `
+        <div class="preset-card ${i === 0 ? 'selected' : ''}" 
+             onclick="selectPreset('${p.id}', this)">
+            <div class="preset-icon">${p.icon}</div>
+            <div class="preset-name">${p.name}</div>
+        </div>
+    `).join('');
+}
+
+function selectPreset(presetId, el) {
+    selectedPreset = presetId;
+    document.querySelectorAll('.preset-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+}
+
+function showNewJobModal() {
+    document.getElementById('modal-new-job').style.display = 'flex';
+}
+
+async function submitNewJob(e) {
+    e.preventDefault();
+    
+    const modality = document.getElementById('job-modality').value;
+    const dataset = document.getElementById('job-dataset').value;
+    
+    try {
+        const res = await fetch(`/api/fine-tune/${modality}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                preset: selectedPreset,
+                dataset_dir: dataset,
+            }),
+        });
+        
+        const data = await res.json();
+        if (res.ok) {
+            closeModal('modal-new-job');
+            showToast('Training job started: ' + data.job_id, 'success');
+            refreshDashboard();
+        } else {
+            showToast(data.error || 'Failed to start job', 'error');
+        }
+    } catch (err) {
+        showToast('Network error', 'error');
+    }
+}
+
+async function cancelJob(jobId) {
+    if (!confirm('Cancel this training job?')) return;
+    
+    try {
+        const res = await fetch(`/api/fine-tune/cancel/${jobId}`, { method: 'DELETE' });
+        if (res.ok) {
+            showToast('Job cancelled', 'success');
+            refreshDashboard();
+        }
+    } catch (err) {
+        showToast('Failed to cancel job', 'error');
+    }
+}
+
+function downloadLora(jobId) {
+    window.open(`/api/fine-tune/download/${jobId}`, '_blank');
+}
+
+function viewLogs(jobId) {
+    currentLogJob = jobId;
+    document.getElementById('logs-panel').style.display = 'block';
+    document.getElementById('logs-container').innerHTML = '<div class="log-entry"><span class="log-message">Connecting to log stream...</span></div>';
+    
+    // In a real implementation with WebSocket:
+    // const ws = new WebSocket(`ws://${location.host}/ws/fine-tune/logs/${jobId}`);
+    // ws.onmessage = (e) => appendLog(JSON.parse(e.data));
+    
+    // Fallback: poll status
+    pollLogs(jobId);
+}
+
+async function pollLogs(jobId) {
+    if (currentLogJob !== jobId) return;
+    
+    try {
+        const res = await fetch(`/api/fine-tune/status/${jobId}`);
+        const data = await res.json();
+        
+        const container = document.getElementById('logs-container');
+        const time = new Date().toLocaleTimeString();
+        
+        container.innerHTML = `
+            <div class="log-entry">
+                <span class="log-time">${time}</span>
+                <span class="log-level info">INFO</span>
+                <span class="log-message">Status: ${data.status} | Step: ${data.current_step}/${data.total_steps} | Loss: ${data.current_loss?.toFixed(4) || '—'}</span>
+            </div>
+        ` + container.innerHTML;
+        
+        if (['training', 'preprocessing', 'evaluating'].includes(data.status)) {
+            setTimeout(() => pollLogs(jobId), 2000);
+        }
+    } catch (err) {
+        console.error('Log poll failed:', err);
+    }
+}
+
+function closeLogs() {
+    currentLogJob = null;
+    document.getElementById('logs-panel').style.display = 'none';
+}
+
+function closeModal(id) {
+    document.getElementById(id).style.display = 'none';
+}
+</script>
+{% endblock %}

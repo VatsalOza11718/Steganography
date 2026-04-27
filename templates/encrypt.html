@@ -1,0 +1,376 @@
+{% extends "base.html" %}
+{% block title %}Encrypt — BIS Steganography{% endblock %}
+{% block meta_desc %}Hide secret messages inside text, audio, video, or images using BIS steganography with optional
+AES-256 encryption.{% endblock %}
+
+{% block content %}
+<div class="page-header anim-spotlight">
+    <div class="breadcrumb anim-reveal-up">
+        <a href="/" class="anim-link-sweep">Home</a> <span>/</span> <span>Encrypt</span>
+    </div>
+    <h1 class="anim-reveal-up parallax-text" data-anim-delay="1">
+        <span class="gradient-text">Encrypt</span> a Secret Message
+    </h1>
+    <p class="anim-reveal-up" data-anim-delay="2">Choose a steganography method, provide cover media, and embed your
+        secret invisibly.</p>
+</div>
+
+<div class="container-md" style="padding-bottom:var(--sp-24);position:relative">
+    <!-- Bit Stream Background (Anim 32) -->
+    <canvas class="bit-stream-canvas" aria-hidden="true"></canvas>
+
+    <!-- Step 1: Message -->
+    <div class="card anim-reveal-up shield-pulse" style="margin-bottom:var(--sp-5)">
+        <div class="card-header">
+            <div class="card-number" aria-hidden="true">1</div>
+            <div>
+                <h2>Enter Your Secret Message</h2>
+                <p>Type the message you want to hide. It will be embedded invisibly.</p>
+            </div>
+        </div>
+        <div class="form-group"><textarea id="secret-message" placeholder="Type your secret message here..." rows="4"
+                aria-label="Secret message" class="anim-input"></textarea></div>
+        <div class="form-group">
+            <label for="enc-password"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <path
+                        d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
+                </svg> Encryption Password <span class="opt-label">(optional — AES-256)</span></label>
+            <input type="password" id="enc-password" class="text-input anim-input"
+                placeholder="Leave empty for no encryption" aria-label="Encryption password">
+        </div>
+    </div>
+
+    <!-- Step 2: Method -->
+    <div class="card anim-reveal-up" data-anim-delay="1" style="margin-bottom:var(--sp-5)">
+        <div class="card-header">
+            <div class="card-number" aria-hidden="true">2</div>
+            <div>
+                <h2>Choose Steganography Method</h2>
+                <p>Select how you want to hide the message.</p>
+            </div>
+        </div>
+        <div class="method-grid" role="radiogroup" aria-label="Steganography method">
+            <button class="method-card active anim-tilt ripple-container" data-method="text" role="radio"
+                aria-checked="true">
+                <div class="method-icon">📝</div>
+                <div class="method-info">
+                    <h3>Text in Text</h3>
+                    <p>Zero-width Unicode</p>
+                </div>
+                <div class="method-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12" />
+                    </svg></div>
+            </button>
+            <button class="method-card anim-tilt ripple-container" data-method="audio" role="radio"
+                aria-checked="false">
+                <div class="method-icon">🎵</div>
+                <div class="method-info">
+                    <h3>Text in Audio</h3>
+                    <p>LSB in WAV</p>
+                </div>
+                <div class="method-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12" />
+                    </svg></div>
+            </button>
+            <button class="method-card anim-tilt ripple-container" data-method="video" role="radio"
+                aria-checked="false">
+                <div class="method-icon">🎬</div>
+                <div class="method-info">
+                    <h3>Text in Video</h3>
+                    <p>LSB in frames</p>
+                </div>
+                <div class="method-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12" />
+                    </svg></div>
+            </button>
+            <button class="method-card anim-tilt ripple-container" data-method="image" role="radio"
+                aria-checked="false">
+                <div class="method-icon">🖼️</div>
+                <div class="method-info">
+                    <h3>Text in Image</h3>
+                    <p>Neural U-Net</p>
+                </div>
+                <div class="method-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12" />
+                    </svg></div>
+            </button>
+        </div>
+    </div>
+
+    <!-- Step 3: Cover -->
+    <div class="card anim-reveal-up" data-anim-delay="2" style="margin-bottom:var(--sp-5)" id="step-cover">
+        <div class="card-header">
+            <div class="card-number" aria-hidden="true">3</div>
+            <div>
+                <h2 id="cover-title">Provide Cover Text</h2>
+                <p id="cover-desc">Select a template or upload your own cover.</p>
+            </div>
+        </div>
+        <div class="cover-toggle" role="tablist" aria-label="Cover source">
+            <button class="source-btn active ripple-container" data-source="template" role="tab"
+                aria-selected="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7" />
+                    <rect x="14" y="3" width="7" height="7" />
+                    <rect x="3" y="14" width="7" height="7" />
+                    <rect x="14" y="14" width="7" height="7" />
+                </svg> Template</button>
+            <button class="source-btn ripple-container" data-source="custom" role="tab" aria-selected="false"><svg
+                    width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                    <polyline points="17 8 12 3 7 8" />
+                    <line x1="12" y1="3" x2="12" y2="15" />
+                </svg> Upload</button>
+        </div>
+
+        <!-- TEXT TEMPLATES -->
+        <div class="cover-section" id="tpl-text-section">
+            <div class="template-grid" id="text-template-grid">
+                <button class="template-card ripple-container" data-tpl="casual"><span class="tpl-icon">💬</span><span
+                        class="tpl-name">Casual Chat</span><span class="tpl-preview">Hey! How's it
+                        going?</span></button>
+                <button class="template-card ripple-container" data-tpl="email"><span class="tpl-icon">📧</span><span
+                        class="tpl-name">Business Email</span><span class="tpl-preview">Dear Team, I hope this finds you
+                        well...</span></button>
+                <button class="template-card ripple-container" data-tpl="news"><span class="tpl-icon">📰</span><span
+                        class="tpl-name">News Article</span><span class="tpl-preview">Community Garden Celebrates
+                        Anniversary</span></button>
+                <button class="template-card ripple-container" data-tpl="social"><span class="tpl-icon">📱</span><span
+                        class="tpl-name">Social Post</span><span class="tpl-preview">Just finished an incredible
+                        hike!</span></button>
+                <button class="template-card ripple-container" data-tpl="recipe"><span class="tpl-icon">🍳</span><span
+                        class="tpl-name">Recipe Note</span><span class="tpl-preview">Classic Chocolate Chip
+                        Cookies</span></button>
+                <button class="template-card ripple-container" data-tpl="journal"><span class="tpl-icon">📔</span><span
+                        class="tpl-name">Journal Entry</span><span class="tpl-preview">Today was surprisingly
+                        productive</span></button>
+                <button class="template-card ripple-container" data-tpl="love"><span class="tpl-icon">💌</span><span
+                        class="tpl-name">Love Letter</span><span class="tpl-preview">My Dearest, I wanted to tell
+                        you...</span></button>
+                <button class="template-card ripple-container" data-tpl="study"><span class="tpl-icon">📚</span><span
+                        class="tpl-name">Study Notes</span><span class="tpl-preview">Chapter 5 — Cellular
+                        Respiration</span></button>
+                <button class="template-card ripple-container" data-tpl="travel"><span class="tpl-icon">✈️</span><span
+                        class="tpl-name">Travel Blog</span><span class="tpl-preview">Day 3 in Kyoto — Temple
+                        Hopping</span></button>
+                <button class="template-card ripple-container" data-tpl="shopping"><span class="tpl-icon">🛒</span><span
+                        class="tpl-name">Shopping List</span><span class="tpl-preview">Weekly Grocery
+                        List</span></button>
+            </div>
+            <div class="form-group" style="margin-top:var(--sp-4)"><label>Cover Text Preview</label><textarea
+                    id="tpl-text-preview" placeholder="Select a template above..." rows="5" readonly
+                    class="anim-input"></textarea></div>
+        </div>
+
+        <!-- AUDIO TEMPLATES -->
+        <div class="cover-section hidden" id="tpl-audio-section">
+            <div class="form-group" style="margin-bottom:var(--sp-4)"><label for="audio-duration-slider">Audio Duration:
+                    <span id="audio-duration-value">2:00</span></label>
+                <div style="display:flex;align-items:center;gap:var(--sp-4)"><span
+                        style="font-size:var(--text-xs);color:var(--text-dim)">15s</span><input type="range"
+                        id="audio-duration-slider" min="15" max="900" value="120" step="15" style="flex:1"><span
+                        style="font-size:var(--text-xs);color:var(--text-dim)">15m</span></div>
+            </div>
+            <div class="template-grid" id="audio-template-grid">
+                <button class="template-card ripple-container" data-tpl="guitar"><span class="tpl-icon">🎸</span><span
+                        class="tpl-name">Acoustic Guitar</span></button>
+                <button class="template-card ripple-container" data-tpl="lullaby"><span class="tpl-icon">🎶</span><span
+                        class="tpl-name">Lullaby</span></button>
+                <button class="template-card ripple-container" data-tpl="jazz"><span class="tpl-icon">🎹</span><span
+                        class="tpl-name">Jazz Piano</span></button>
+                <button class="template-card ripple-container" data-tpl="melody"><span class="tpl-icon">🎵</span><span
+                        class="tpl-name">Classical Melody</span></button>
+                <button class="template-card ripple-container" data-tpl="ocean"><span class="tpl-icon">🌊</span><span
+                        class="tpl-name">Ocean Waves</span></button>
+                <button class="template-card ripple-container" data-tpl="rain"><span class="tpl-icon">🌧️</span><span
+                        class="tpl-name">Rain Ambience</span></button>
+                <button class="template-card ripple-container" data-tpl="chimes"><span class="tpl-icon">🔔</span><span
+                        class="tpl-name">Wind Chimes</span></button>
+                <button class="template-card ripple-container" data-tpl="birds"><span class="tpl-icon">🐦</span><span
+                        class="tpl-name">Morning Birds</span></button>
+            </div>
+            <div class="template-status hidden" id="tpl-audio-status">
+                <div class="status-badge"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="var(--success-400)" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12" />
+                    </svg><span id="tpl-audio-name">Template loaded</span></div>
+            </div>
+        </div>
+
+        <!-- VIDEO TEMPLATES -->
+        <div class="cover-section hidden" id="tpl-video-section">
+            <div class="form-group" style="margin-bottom:var(--sp-4)"><label for="video-duration-slider">Video Duration:
+                    <span id="video-duration-value">1:00</span></label>
+                <div style="display:flex;align-items:center;gap:var(--sp-4)"><span
+                        style="font-size:var(--text-xs);color:var(--text-dim)">15s</span><input type="range"
+                        id="video-duration-slider" min="15" max="900" value="60" step="15" style="flex:1"><span
+                        style="font-size:var(--text-xs);color:var(--text-dim)">15m</span></div>
+            </div>
+            <div class="template-grid" id="video-template-grid">
+                <button class="template-card ripple-container" data-tpl="gradient"><span class="tpl-icon">🌈</span><span
+                        class="tpl-name">Gradient</span></button>
+                <button class="template-card ripple-container" data-tpl="waves"><span class="tpl-icon">🌊</span><span
+                        class="tpl-name">Waves</span></button>
+                <button class="template-card ripple-container" data-tpl="sky"><span class="tpl-icon">☁️</span><span
+                        class="tpl-name">Sky</span></button>
+                <button class="template-card ripple-container" data-tpl="abstract"><span class="tpl-icon">🎨</span><span
+                        class="tpl-name">Abstract</span></button>
+                <button class="template-card ripple-container" data-tpl="starfield"><span class="tpl-icon">✨</span><span
+                        class="tpl-name">Starfield</span></button>
+                <button class="template-card ripple-container" data-tpl="fireflies"><span
+                        class="tpl-icon">🌙</span><span class="tpl-name">Fireflies</span></button>
+                <button class="template-card ripple-container" data-tpl="sunrise"><span class="tpl-icon">🌅</span><span
+                        class="tpl-name">Sunrise</span></button>
+                <button class="template-card ripple-container" data-tpl="matrix"><span class="tpl-icon">💻</span><span
+                        class="tpl-name">Matrix</span></button>
+            </div>
+            <div class="template-status hidden" id="tpl-video-status">
+                <div class="status-badge"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="var(--success-400)" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12" />
+                    </svg><span id="tpl-video-name">Template loaded</span></div>
+            </div>
+        </div>
+
+        <!-- IMAGE TEMPLATES -->
+        <div class="cover-section hidden" id="tpl-image-section">
+            <div class="template-grid" id="image-template-grid">
+                <button class="template-card ripple-container" data-tpl="nature"><span class="tpl-icon">🏞️</span><span
+                        class="tpl-name">Nature</span></button>
+                <button class="template-card ripple-container" data-tpl="abstract"><span class="tpl-icon">🎨</span><span
+                        class="tpl-name">Abstract</span></button>
+                <button class="template-card ripple-container" data-tpl="citynight"><span
+                        class="tpl-icon">🌃</span><span class="tpl-name">City Night</span></button>
+                <button class="template-card ripple-container" data-tpl="ocean"><span class="tpl-icon">🌊</span><span
+                        class="tpl-name">Ocean</span></button>
+                <button class="template-card ripple-container" data-tpl="sunset"><span class="tpl-icon">🌅</span><span
+                        class="tpl-name">Sunset</span></button>
+                <button class="template-card ripple-container" data-tpl="forest"><span class="tpl-icon">🌲</span><span
+                        class="tpl-name">Forest</span></button>
+            </div>
+            <div class="template-status hidden" id="tpl-image-status">
+                <div class="status-badge"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="var(--success-400)" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12" />
+                    </svg><span id="tpl-image-name">Template loaded</span></div>
+            </div>
+        </div>
+
+        <!-- IMAGE UPLOAD -->
+        <div class="cover-section hidden" id="upload-image-section">
+            <div class="drop-zone ripple-container" id="enc-image-dropzone">
+                <div class="drop-zone-content"><svg width="48" height="48" viewBox="0 0 24 24" fill="none"
+                        stroke="var(--primary-400)" stroke-width="1.5" opacity=".6">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                        <circle cx="8.5" cy="8.5" r="1.5" />
+                        <polyline points="21 15 16 10 5 21" />
+                    </svg>
+                    <p>Drag &amp; drop cover image (PNG/JPG)</p><span class="drop-hint">or click to browse</span>
+                </div><input type="file" id="enc-image-file" accept="image/png,image/jpeg" hidden>
+                <div class="file-badge hidden" id="enc-image-filename"></div>
+            </div>
+        </div>
+
+        <!-- CUSTOM UPLOAD SECTIONS -->
+        <div class="cover-section hidden" id="cover-text-section">
+            <div class="form-group"><textarea id="cover-text" placeholder="Enter cover text here..." rows="5"
+                    class="anim-input"></textarea></div>
+        </div>
+        <div class="cover-section hidden" id="cover-audio-section">
+            <div class="drop-zone ripple-container" id="enc-audio-dropzone">
+                <div class="drop-zone-content"><svg width="48" height="48" viewBox="0 0 24 24" fill="none"
+                        stroke="var(--primary-400)" stroke-width="1.5" opacity=".6">
+                        <path d="M9 18V5l12-2v13" />
+                        <circle cx="6" cy="18" r="3" />
+                        <circle cx="18" cy="16" r="3" />
+                    </svg>
+                    <p>Drag &amp; drop WAV audio</p><span class="drop-hint">or click to browse</span>
+                </div><input type="file" id="enc-audio-file" accept=".wav" hidden>
+                <div class="file-badge hidden" id="enc-audio-filename"></div>
+            </div>
+        </div>
+        <div class="cover-section hidden" id="cover-video-section">
+            <div class="drop-zone ripple-container" id="enc-video-dropzone">
+                <div class="drop-zone-content"><svg width="48" height="48" viewBox="0 0 24 24" fill="none"
+                        stroke="var(--primary-400)" stroke-width="1.5" opacity=".6">
+                        <polygon points="23 7 16 12 23 17 23 7" />
+                        <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                    </svg>
+                    <p>Drag &amp; drop video file</p><span class="drop-hint">or click to browse</span>
+                </div><input type="file" id="enc-video-file" accept="video/*,.mp4,.avi,.mkv" hidden>
+                <div class="file-badge hidden" id="enc-video-filename"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Encryption Progress Ring (Anim 31) -->
+    <div class="encrypt-ring hidden" id="encrypt-progress-ring" aria-hidden="true">
+        <svg viewBox="0 0 80 80">
+            <defs>
+                <linearGradient id="ring-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#6366f1" />
+                    <stop offset="100%" stop-color="#a855f7" />
+                </linearGradient>
+            </defs>
+            <circle class="ring-bg" cx="40" cy="40" r="35" />
+            <circle class="ring-fill" cx="40" cy="40" r="35" />
+        </svg>
+    </div>
+
+    <!-- Encrypt Button -->
+    <button class="btn btn-full anim-btn anim-magnetic cta-pulse ripple-container" id="btn-encrypt" disabled>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+            <path d="M7 11V7a5 5 0 0110 0v4" />
+        </svg>
+        Hide Secret Message
+    </button>
+
+    <!-- Result (Anim 35 on success) -->
+    <div class="result-card hidden success-burst decrypt-reveal" id="encrypt-result">
+        <div class="result-header"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="var(--success-400)" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
+                <polyline points="22 4 12 14.01 9 11.01" class="anim-check-draw" />
+            </svg>
+            <h3>Message Hidden Successfully!</h3>
+        </div>
+        <!-- Capacity Meter (Anim 33) -->
+        <div class="capacity-meter" id="capacity-meter">
+            <div class="capacity-meter-fill"></div>
+        </div>
+
+        <div id="result-text-section" class="result-body"><label>Stego Text <span class="opt-label">(contains hidden
+                    data)</span></label><textarea id="stego-output" class="stego-output anim-input" rows="5"
+                readonly></textarea>
+            <div class="result-actions"><button class="btn btn-ghost btn-sm ripple-container" id="btn-copy-stego">📋
+                    Copy</button><button class="btn btn-ghost btn-sm ripple-container" id="btn-download-stego-text">💾
+                    Download .txt</button></div>
+        </div>
+        <div id="result-audio-section" class="result-body hidden"><label>Stego Audio</label><audio controls
+                id="enc-audio-player" style="width:100%;border-radius:8px;margin:.5rem 0"></audio>
+            <div class="result-actions"><a class="btn btn-ghost btn-sm ripple-container" id="enc-audio-download"
+                    download>💾 Download Audio</a></div>
+        </div>
+        <div id="result-video-section" class="result-body hidden">
+            <div class="result-actions"><a class="btn btn-ghost btn-sm ripple-container" id="enc-video-download"
+                    download>💾 Download Video</a></div>
+        </div>
+        <div id="result-image-section" class="result-body hidden"><label>Stego Image</label><img id="enc-image-preview"
+                alt="Stego image" class="anim-img-reveal" style="max-width:100%;border-radius:8px;margin:.5rem 0">
+            <div class="result-actions"><a class="btn btn-ghost btn-sm ripple-container" id="enc-image-download"
+                    download>💾 Download Image</a></div>
+        </div>
+        <div class="metrics-grid" id="encrypt-metrics"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='encrypt.js') }}"></script>
+{% endblock %}

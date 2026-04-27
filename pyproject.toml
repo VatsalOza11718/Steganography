@@ -1,0 +1,40 @@
+[project]
+name = "bis"
+version = "0.3.0"
+description = "Multi-media steganography tool — hide text in text, audio, and video with AES-256 encryption"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.24",
+    "flask>=3.0",
+    "pycryptodome>=3.19",
+    "opencv-python>=4.8",
+    "imageio-ffmpeg>=0.4",
+    "pillow>=12.1.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+]
+ml = [
+    "torch>=2.1",
+    "torchvision>=0.16",
+    "torchaudio>=2.1",
+    "transformers>=4.40",
+    "diffusers>=0.27",
+    "accelerate>=0.28",
+    "safetensors>=0.4",
+    "scipy>=1.11",
+    "peft>=0.10",
+    "sentencepiece>=0.2",
+    "datasets>=2.18",
+]
+api = [
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.27",
+    "python-multipart>=0.0.9",
+]
+
+[project.scripts]
+bis = "bis.fine_tuning.cli:main"

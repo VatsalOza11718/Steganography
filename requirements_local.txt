@@ -1,0 +1,39 @@
+# ============================================================
+# BIS Image Gen — Local Inference Requirements
+# ============================================================
+# For RTX 5050 8GB (or any NVIDIA GPU with 8GB+ VRAM)
+#
+# Install:
+#   pip install -r requirements_local.txt
+#
+# CUDA Toolkit required: https://developer.nvidia.com/cuda-toolkit
+# Tested with: Python 3.10+, CUDA 12.1+, PyTorch 2.1+
+# ============================================================
+
+# ── Core (required) ──
+torch>=2.1.0
+torchvision>=0.16.0
+diffusers>=0.25.0
+transformers>=4.36.0
+accelerate>=0.25.0
+peft>=0.7.0
+safetensors>=0.4.0
+Pillow>=10.0.0
+numpy>=1.24.0
+
+# ── Upscaling (recommended — 4x Real-ESRGAN for 1080p output) ──
+# Provides significantly better upscale quality vs Pillow LANCZOS.
+# If installation fails, the inference script falls back to LANCZOS.
+realesrgan>=0.3.0
+basicsr>=1.4.2
+gfpgan>=1.3.8
+
+# ── Memory optimization (recommended — xFormers) ──
+# Reduces VRAM usage by ~20-30% via memory-efficient attention.
+# Must match your PyTorch + CUDA version.
+# Install separately: pip install xformers (auto-detects versions)
+# xformers>=0.0.23
+
+# ── Optional utilities ──
+# scipy>=1.11.0
+# tqdm>=4.65.0

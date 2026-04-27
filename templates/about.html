@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}About — BIS Steganography{% endblock %}
+{% block meta_desc %}Learn what BIS does, how each steganography mode works, and what security protections are applied.{% endblock %}
+
+{% block content %}
+<div class="page-header anim-spotlight">
+    <div class="breadcrumb anim-reveal-up">
+        <a href="/" class="anim-link-sweep">Home</a> <span>/</span> <span>About</span>
+    </div>
+    <h1 class="anim-reveal-up parallax-text" data-anim-delay="1">
+        <span class="gradient-text">About</span> BIS
+    </h1>
+    <p class="anim-reveal-up" data-anim-delay="2">A practical overview of the platform and its core methods.</p>
+</div>
+
+<div class="container-md" style="padding-bottom:var(--sp-24)">
+    <section class="card anim-reveal-up" style="margin-bottom:var(--sp-8);padding:var(--sp-8)">
+        <h2 style="margin-bottom:var(--sp-3)">What BIS Does</h2>
+        <p style="color:var(--text-secondary)">
+            BIS hides secret text inside ordinary text, audio, video, or images. You can optionally protect the hidden
+            payload with a password so extracted data is decrypted only by authorized recipients.
+        </p>
+    </section>
+
+    <section style="margin-bottom:var(--sp-10)">
+        <h2 class="anim-reveal-up" style="margin-bottom:var(--sp-5);text-align:center">Steganography Methods</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:var(--sp-4)">
+            <article class="card anim-reveal-up" data-anim-delay="1" style="padding:var(--sp-5)">
+                <h3 style="margin-bottom:var(--sp-2)">Text in Text</h3>
+                <p style="color:var(--text-secondary);font-size:var(--text-sm)">
+                    Encodes hidden bits with zero-width Unicode characters while preserving visible cover text.
+                </p>
+            </article>
+            <article class="card anim-reveal-up" data-anim-delay="2" style="padding:var(--sp-5)">
+                <h3 style="margin-bottom:var(--sp-2)">Text in Audio</h3>
+                <p style="color:var(--text-secondary);font-size:var(--text-sm)">
+                    Uses LSB embedding in WAV samples to store message data in a way that is generally inaudible.
+                </p>
+            </article>
+            <article class="card anim-reveal-up" data-anim-delay="3" style="padding:var(--sp-5)">
+                <h3 style="margin-bottom:var(--sp-2)">Text in Video</h3>
+                <p style="color:var(--text-secondary);font-size:var(--text-sm)">
+                    Distributes hidden data across video frames using LSB-style embedding for larger payload capacity.
+                </p>
+            </article>
+            <article class="card anim-reveal-up" data-anim-delay="4" style="padding:var(--sp-5)">
+                <h3 style="margin-bottom:var(--sp-2)">Text in Image</h3>
+                <p style="color:var(--text-secondary);font-size:var(--text-sm)">
+                    Applies image-based embedding and supports ML-assisted mode when dependencies are available.
+                </p>
+            </article>
+        </div>
+    </section>
+
+    <section class="card anim-reveal-up" style="margin-bottom:var(--sp-10);padding:var(--sp-8)">
+        <h2 style="margin-bottom:var(--sp-3)">Security Notes</h2>
+        <ul style="margin:0;padding-left:1.2rem;color:var(--text-secondary);display:grid;gap:.55rem">
+            <li>Optional password protection uses authenticated encryption (AES-GCM).</li>
+            <li>Steganography hides existence of data; encryption protects content confidentiality.</li>
+            <li>If media is aggressively re-encoded or edited, extraction reliability may decrease.</li>
+        </ul>
+    </section>
+
+    <section class="anim-reveal-scale" style="text-align:center;padding:var(--sp-8) 0">
+        <h2 style="margin-bottom:var(--sp-3)">Try It</h2>
+        <p style="color:var(--text-secondary);margin-bottom:var(--sp-5)">
+            Create a stego file on the Encrypt page, then verify recovery on the Decrypt page.
+        </p>
+        <div style="display:flex;gap:var(--sp-4);justify-content:center;flex-wrap:wrap">
+            <a href="/encrypt" class="btn btn-primary anim-btn anim-magnetic ripple-container cta-pulse">Go to Encrypt</a>
+            <a href="/decrypt" class="btn btn-ghost anim-btn anim-magnetic ripple-container">Go to Decrypt</a>
+        </div>
+    </section>
+</div>
+{% endblock %}

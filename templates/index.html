@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+{% block title %}BIS — Multi-Media Steganography{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='landing.css') }}">{% endblock %}
+
+{% block content %}
+<div class="landing-page">
+
+    <!-- ═══ Background Layer: Elements 1–13 ═══ -->
+    <div class="landing-bg" aria-hidden="true">
+        <!-- Elements 1-5: Glass Orbs -->
+        <div class="glass-orb" id="glass-orb-1"></div>
+        <div class="glass-orb" id="glass-orb-2"></div>
+        <div class="glass-orb" id="glass-orb-3"></div>
+        <div class="glass-orb" id="glass-orb-4"></div>
+        <div class="glass-orb" id="glass-orb-5"></div>
+        <!-- Elements 6-7: Aurora Bands -->
+        <div class="aurora-band" id="aurora-1"></div>
+        <div class="aurora-band" id="aurora-2"></div>
+        <!-- Elements 8-9: Gradient Meshes -->
+        <div class="gradient-mesh" id="mesh-1"></div>
+        <div class="gradient-mesh" id="mesh-2"></div>
+        <!-- Element 10: Hex Grid -->
+        <div class="hex-grid" id="hex-grid"></div>
+        <!-- Elements 11-13: Glass Shards -->
+        <div class="glass-shard" id="shard-1"></div>
+        <div class="glass-shard" id="shard-2"></div>
+        <div class="glass-shard" id="shard-3"></div>
+    </div>
+    <!-- Element 14: Particle Canvas -->
+    <canvas id="particle-canvas" aria-hidden="true"></canvas>
+
+    <!-- ═══ HERO: Elements 15-16, 23-24 ═══ -->
+    <section class="landing-hero anim-spotlight" id="hero">
+        <!-- Element 16: Glass Hero Panel -->
+        <div class="glass-hero-panel enter-scale" id="glass-hero">
+            <div class="hero-badge-landing enter-up delay-1">
+                <span class="badge-dot"></span>
+                Steganography · AES-256
+            </div>
+
+            <!-- Element 15: Wave Text -->
+            <h1 class="wave-text" id="wave-title" data-text="Hide Anything Invisibly">
+                Hide Anything Invisibly
+            </h1>
+
+            <p class="hero-subtitle-landing enter-up delay-2">
+                Embed untraceable secret messages inside text, audio, video &amp; images.
+                Template-generated covers. Military-grade encryption. Zero detection.
+            </p>
+
+            <!-- Wave Controls (customizable speed & amplitude) -->
+            <div class="wave-controls enter-up delay-3">
+                <div class="wave-control">
+                    <label for="wave-speed-ctrl">Speed</label>
+                    <input type="range" id="wave-speed-ctrl" min="0.8" max="5" step="0.1" value="2.5">
+                </div>
+                <div class="wave-control">
+                    <label for="wave-amp-ctrl">Amplitude</label>
+                    <input type="range" id="wave-amp-ctrl" min="5" max="35" step="1" value="18">
+                </div>
+            </div>
+
+            <!-- Elements 23-24: Glass CTAs -->
+            <div class="hero-ctas enter-up delay-4">
+                <a class="glass-cta glass-cta-primary anim-magnetic ripple-container cta-pulse" id="cta-primary"
+                    href="/encrypt">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                        <path d="M7 11V7a5 5 0 0110 0v4" />
+                    </svg>
+                    Start Encrypting
+                </a>
+                <a class="glass-cta glass-cta-secondary ripple-container" id="cta-secondary" href="/decrypt">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                        <path d="M7 11V7a5 5 0 015-5 5 5 0 015 5v4" />
+                        <line x1="17" y1="7" x2="20" y2="4" />
+                    </svg>
+                    Decrypt a File
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ FEATURES: Elements 17-22 (Glass Feature Cards) ═══ -->
+    <section class="glass-features anim-spotlight" id="features">
+        <div class="glass-features-header">
+            <h2 class="enter-up">What Can BIS Do?</h2>
+            <p class="enter-up delay-1">Six powerful steganography capabilities — all behind a single glass interface.
+            </p>
+        </div>
+
+        <div class="glass-grid">
+            <!-- Element 17 -->
+            <div class="glass-feature-card enter-up delay-1" id="feature-card-1">
+                <div class="card-glow"></div>
+                <div class="glass-card-icon">📝</div>
+                <h3>Text Steganography</h3>
+                <p>Hide messages using invisible zero-width Unicode characters. The cover text looks completely normal —
+                    even under inspection.</p>
+            </div>
+            <!-- Element 18 -->
+            <div class="glass-feature-card enter-up delay-2" id="feature-card-2">
+                <div class="card-glow"></div>
+                <div class="glass-card-icon">🎵</div>
+                <h3>Audio Steganography</h3>
+                <p>Embed data in WAV audio using LSB encoding. The modification is inaudible — the human ear cannot
+                    distinguish the change.</p>
+            </div>
+            <!-- Element 19 -->
+            <div class="glass-feature-card enter-up delay-3" id="feature-card-3">
+                <div class="card-glow"></div>
+                <div class="glass-card-icon">🎬</div>
+                <h3>Video Steganography</h3>
+                <p>Spread hidden payloads across video frames with massive capacity. A single 720p frame holds ~460KB of
+                    secret data.</p>
+            </div>
+            <!-- Element 20 -->
+            <div class="glass-feature-card enter-up delay-4" id="feature-card-4">
+                <div class="card-glow"></div>
+                <div class="glass-card-icon">🖼️</div>
+                <h3>Neural Image Stego</h3>
+                <p>Deep learning U-Net embeds messages as sub-perceptual pixel changes — resilient to compression and
+                    steganalysis.</p>
+            </div>
+            <!-- Element 21 -->
+            <div class="glass-feature-card enter-up delay-5" id="feature-card-5">
+                <div class="card-glow"></div>
+                <div class="glass-card-icon">🤖</div>
+                <h3>Cover Templates</h3>
+                <p>Use built-in templates for text, audio, video, and images to start embedding quickly with
+                    predictable results.</p>
+            </div>
+            <!-- Element 22 -->
+            <div class="glass-feature-card enter-up delay-6" id="feature-card-6">
+                <div class="card-glow"></div>
+                <div class="glass-card-icon">🔐</div>
+                <h3>AES-256 Encryption</h3>
+                <p>Military-grade AES-256-GCM cipher. Even if the hidden data is found, it's uncrackable without the
+                    password.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ INTERACTIVE SHOWCASE ═══ -->
+    <section class="glass-showcase" id="showcase">
+        <div class="glass-showcase-header">
+            <h2 class="enter-up">Interactive Glass Experience</h2>
+            <p class="enter-up delay-1">Hover, click, and interact — every element responds to you.</p>
+        </div>
+        <div class="showcase-grid">
+            <div class="showcase-tile tile-1 enter-scale delay-1 ripple-container anim-tilt">
+                <div class="tile-icon">🌊</div>
+                <h3>Wave Motion</h3>
+                <p>Letters dance in synchronized waves</p>
+            </div>
+            <div class="showcase-tile tile-2 enter-scale delay-2 ripple-container anim-tilt">
+                <div class="tile-icon">✨</div>
+                <h3>Particle Network</h3>
+                <p>Constellation follows your cursor</p>
+            </div>
+            <div class="showcase-tile tile-3 enter-scale delay-3 ripple-container anim-tilt">
+                <div class="tile-icon">💎</div>
+                <h3>Glass Depth</h3>
+                <p>Frosted layers with real blur</p>
+            </div>
+            <div class="showcase-tile tile-4 enter-scale delay-4 ripple-container anim-tilt">
+                <div class="tile-icon">🫧</div>
+                <h3>Click Ripples</h3>
+                <p>Every click sends a ripple wave</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ FINAL CTA ═══ -->
+    <section class="glass-cta-section" id="cta-final">
+        <div class="glass-cta-panel enter-up">
+            <h2>Ready to Hide Your Secret?</h2>
+            <p>Choose your medium, provide your message, and let BIS make it invisible.</p>
+            <div class="hero-ctas">
+                <a class="glass-cta glass-cta-primary ripple-container anim-magnetic cta-pulse" href="/encrypt">Encrypt
+                    Now</a>
+                <a class="glass-cta glass-cta-secondary ripple-container" href="/about">Learn the Tech</a>
+            </div>
+        </div>
+    </section>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='home.js') }}"></script>
+{% endblock %}
