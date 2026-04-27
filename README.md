@@ -1,23 +1,25 @@
 <div align="center">
 
-<img src="docs/images/video-preview.png" alt="BIS Stagno Web Application Preview" width="920" />
-
 <h1>BIS Stagno</h1>
 
-<p><strong>Professional Web-First Steganography Platform</strong></p>
+<p><strong>Professional Web-Based Multi-Modal Steganography Platform</strong></p>
 
-<p>Deterministic encryption and decryption workflows across text, audio, video, and image channels using Flask and AES-GCM.</p>
+<p>Browser-first encryption and decryption workflows across text, audio, video, and image channels.</p>
 
 <p>
-  <a href="https://github.com/VatsalOza11718/Steganography">
-    <img src="https://img.shields.io/badge/Repository-GitHub-181717?style=for-the-badge&logo=github" alt="Repository" />
-  </a>
-  <a href="https://github.com/VatsalOza11718/Steganography/commits/main">
-    <img src="https://img.shields.io/github/last-commit/VatsalOza11718/Steganography?style=for-the-badge" alt="Last Commit" />
-  </a>
-  <a href="https://github.com/VatsalOza11718/Steganography/issues">
-    <img src="https://img.shields.io/github/issues/VatsalOza11718/Steganography?style=for-the-badge" alt="Open Issues" />
-  </a>
+	<a href="#visual-showcase"><strong>Visuals</strong></a>
+	·
+	<a href="#architecture-snapshot"><strong>Architecture</strong></a>
+	·
+	<a href="#getting-started"><strong>Quick Start</strong></a>
+	·
+	<a href="#run-the-web-application"><strong>Run Web App</strong></a>
+	·
+	<a href="#api-reference"><strong>API Reference</strong></a>
+	·
+	<a href="#system-diagrams"><strong>System Diagrams</strong></a>
+	·
+	<a href="Video.mp4"><strong>Demo Video</strong></a>
 </p>
 
 <p>
@@ -26,27 +28,49 @@
 	<img src="https://img.shields.io/badge/Architecture-Web--First-2EA44F" alt="Architecture" />
 	<img src="https://img.shields.io/badge/Modes-Text%20%7C%20Audio%20%7C%20Video%20%7C%20Image-1F6FEB" alt="Steganography Modes" />
 	<img src="https://img.shields.io/badge/Security-AES--GCM-C27C0E" alt="Security" />
-	<img src="https://img.shields.io/badge/Status-Production%20Ready-6E7781" alt="Status" />
-</p>
-
-<p>
-	<a href="#getting-started"><strong>Quick Start</strong></a>
-	|
-	<a href="#run-the-web-application"><strong>Run Web App</strong></a>
-	|
-	<a href="#system-diagrams"><strong>Architecture</strong></a>
-	|
-	<a href="#api-reference"><strong>API Reference</strong></a>
-	|
-	<a href="Video.mp4"><strong>Demo Video</strong></a>
+	<img src="https://img.shields.io/badge/Status-Active%20Development-6E7781" alt="Status" />
 </p>
 
 </div>
 
----
+## Visual Showcase
+
+<p align="center">
+	<a href="Video.mp4">
+		<img src="docs/images/video-preview.png" alt="BIS Stagno web demo preview" width="90%" />
+	</a>
+</p>
+<p align="center">
+	<video src="Video.mp4" controls width="90%" poster="docs/images/video-preview.png"></video>
+</p>
+<p align="center">
+	<a href="Video.mp4"><strong>Play Full Demo Video (Video.mp4)</strong></a>
+</p>
+<p align="center">
+	<em>If inline video is not available in your viewer, open the demo link above.</em>
+</p>
+
+## Architecture Snapshot
+
+```mermaid
+flowchart LR
+		U[User Browser UI] --> W[Web Pages<br/>Encrypt and Decrypt]
+		W --> A[Flask API Layer<br/>flask_app.py]
+		A --> T[Text Stego]
+		A --> AU[Audio Stego]
+		A --> V[Video Stego]
+		A --> I[Image Stego]
+		A --> C[Crypto Helpers<br/>AES-GCM]
+		T --> O[(outputs/)]
+		AU --> O
+		V --> O
+		I --> O
+```
 
 ## Table of Contents
 
+- [Visual Showcase](#visual-showcase)
+- [Architecture Snapshot](#architecture-snapshot)
 - [Executive Summary](#executive-summary)
 - [Demo and Media](#demo-and-media)
 - [Web-First Positioning](#web-first-positioning)
